@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
-import java.net.URI;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,26 +34,49 @@ public class AuthController {
             // map DTO -> entity
             User user = new User();
             user.setEmail(req.getEmail());
-            user.setPasswordHash(req.getPassword()); // raw password; UserService will hash
-            // role must match enum values: "employee", "hr_manager", "admin"
-            user.setRole(User.Role.valueOf(req.getRole()));
+            user.setPasswordHash(req.getPassword()); // raw password; will be hashed in service
+
+            // Normalize and map role safely (accept case-insensitive input)
+            String roleInput = req.getRole() == null ? "" : req.getRole().trim();
+            try {
+                user.setRole(User.Role.valueOf(roleInput));
+            } catch (IllegalArgumentException e1) {
+                try {
+                    user.setRole(User.Role.valueOf(roleInput.toUpperCase()));
+                } catch (IllegalArgumentException e2) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Invalid role: " + req.getRole()));
+                }
+            }
 
             User created = userService.register(user);
 
-            // safe response (no password)
-            Map<String, Object> resp = Map.of(
-                "userId", created.getUserId(),
-                "email", created.getEmail(),
-                "role", created.getRole(),
-                "createdAt", created.getCreatedAt()
-            );
+            // Safe response building: avoid Map.of with possible nulls
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("userId", created.getUserId());
+            if (created.getEmail() != null) resp.put("email", created.getEmail());
+            if (created.getRole() != null) resp.put("role", created.getRole().name());
 
-            return ResponseEntity.created(URI.create("/auth/api/users/" + created.getUserId())).body(resp);
+            // createdAt might be null depending on entity mapping, add safely
+            try {
+                Object createdAt = created.getCreatedAt();
+                if (createdAt != null) {
+                    resp.put("createdAt", createdAt);
+                } else {
+                    // optional: put server time as fallback (or skip)
+                    resp.put("createdAt", Instant.now().toString());
+                }
+            } catch (Exception ignore) {
+                // ignore any createdAt access issues
+            }
+
+            return ResponseEntity.ok(resp);
 
         } catch (IllegalArgumentException ex) {
             // thrown by register when duplicate email or invalid role
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
+            // log to console for debugging during development
+            ex.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "Server error"));
         }
     }
@@ -67,8 +91,19 @@ public class AuthController {
             User user = new User();
             user.setEmail(req.getEmail());
             user.setPasswordHash(req.getPassword()); // raw -> will be hashed in service
-            user.setRole(User.Role.valueOf(req.getRole()));
-            // optional: set first/last name in a related table later
+
+            // role mapping with same safe strategy
+            String roleInput = req.getRole() == null ? "" : req.getRole().trim();
+            try {
+                user.setRole(User.Role.valueOf(roleInput));
+            } catch (IllegalArgumentException e1) {
+                try {
+                    user.setRole(User.Role.valueOf(roleInput.toUpperCase()));
+                } catch (IllegalArgumentException e2) {
+                    ra.addFlashAttribute("error", "Invalid role: " + req.getRole());
+                    return "redirect:/register.html";
+                }
+            }
 
             userService.register(user);
             ra.addFlashAttribute("msg", "Registration successful. Please login.");
@@ -77,6 +112,7 @@ public class AuthController {
             ra.addFlashAttribute("error", ex.getMessage());
             return "redirect:/register.html";
         } catch (Exception ex) {
+            ex.printStackTrace();
             ra.addFlashAttribute("error", "Server error");
             return "redirect:/register.html";
         }
@@ -91,11 +127,10 @@ public class AuthController {
         if (opt.isPresent()) {
             User u = opt.get();
             session.setAttribute("userId", u.getUserId());
-            Map<String, Object> payload = Map.of(
-                "userId", u.getUserId(),
-                "email", u.getEmail(),
-                "role", u.getRole()
-            );
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("userId", u.getUserId());
+            if (u.getEmail() != null) payload.put("email", u.getEmail());
+            if (u.getRole() != null) payload.put("role", u.getRole().name());
             return ResponseEntity.ok(payload);
         } else {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
