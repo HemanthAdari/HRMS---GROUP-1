@@ -1,0 +1,522 @@
+/* 🔹 General Page Styling */
+.first-div-single-job {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 30px auto;
+  max-width: 600px;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* 🔹 Search Form */
+.first-div-single-job-form {
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.first-div-single-job-form-fir-inp {
+  flex: 1;
+  padding: 12px 14px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s ease;
+}
+
+.first-div-single-job-form-fir-inp:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+.first-div-single-job-form-sec-inp {
+  padding: 12px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.first-div-single-job-form-sec-inp:hover {
+  background: #0056b3;
+}
+
+/* 🔹 Job Details Box */
+.second-div-single-job {
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #f9f9f9;
+  margin-top: 15px;
+}
+
+.second-div-single-job input[readonly] {
+  width: 80%;
+  margin: 8px auto;
+  display: block;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  text-align: center;
+  color: #444;
+}
+
+/* 🔹 Update & Delete Buttons */
+.second-div-single-job-upd-btn,
+.second-div-single-job-del-btn {
+  padding: 10px 20px;
+  margin: 12px 6px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.second-div-single-job-upd-btn {
+  background: #ffc107;
+  color: #333;
+}
+
+.second-div-single-job-upd-btn:hover {
+  background: #e0a800;
+}
+
+.second-div-single-job-del-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.second-div-single-job-del-btn:hover {
+  background: #b02a37;
+}
+
+/* 🔹 Popup Overlay (full screen dark background) */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+/* 🔹 Popup Content Box */
+.popup-content {
+  background: #ffffff;
+  padding: 30px 25px;
+  border-radius: 12px;
+  max-width: 500px;   /* bigger so inputs fit nicely */
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.popup-content h3 {
+  margin-bottom: 20px;
+  color: #007bff;
+}
+
+.popup-content input[type="text"] {
+  width: 95%;
+  margin: 10px auto;
+  display: block;
+  padding: 12px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s ease;
+}
+
+.popup-content input[type="text"]:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+  outline: none;
+}
+
+
+/* 🔹 Delete Popup Buttons */
+.third-div-single-job-y-del,
+.third-div-single-job-n-del {
+  margin: 12px 8px 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.third-div-single-job-y-del {
+  background: #dc3545;
+  color: white;
+}
+
+.third-div-single-job-y-del:hover {
+  background: #b02a37;
+}
+
+.third-div-single-job-n-del {
+  background: #6c757d;
+  color: white;
+}
+
+.third-div-single-job-n-del:hover {
+  background: #545b62;
+}
+
+/* 🔹 Update Popup Buttons */
+.forth-div-single-job-save,
+.forth-div-single-job-can {
+  margin: 12px 8px 0;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.forth-div-single-job-save {
+  background: #28a745;
+  color: white;
+}
+
+.forth-div-single-job-save:hover {
+  background: #218838;
+}
+
+.forth-div-single-job-can {
+  background: #6c757d;
+  color: white;
+}
+
+.forth-div-single-job-can:hover {
+  background: #545b62;
+}
+
+/* 🔹 Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Add job */
+
+
+/* 🌟 Main Container */
+.add-job-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 🌟 Form Box */
+.add-job-form {
+  background: #fff;
+  padding: 35px 30px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: slideIn 0.5s ease;
+}
+
+/* 🌟 Heading */
+.add-job-form h2 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 🌟 Input Fields */
+.add-job-form input[type="text"] {
+  width: 90%;
+  padding: 12px 14px;
+  margin: 12px 0;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.add-job-form input[type="text"]:focus {
+  border-color: #2575fc;
+  box-shadow: 0 0 8px rgba(37, 117, 252, 0.4);
+  outline: none;
+}
+
+/* 🌟 Submit Button */
+.add-job-form input[type="submit"] {
+  width: 95%;
+  padding: 14px;
+  background: linear-gradient(135deg, #2575fc, #6a11cb);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 15px;
+}
+
+.add-job-form input[type="submit"]:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 15px rgba(106, 17, 203, 0.4);
+}
+
+/* 🌟 Animations */
+@keyframes slideIn {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* apply job form */
+
+
+
+/* Container */
+.aply-job-form-fir-div {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.aply-job-form-fir-div h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* Form layout */
+.aply-job-form-fir-div-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Labels */
+.aply-job-form-fir-div-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #34495e;
+  margin-bottom: 5px;
+}
+
+/* Inputs */
+.aply-job-form-fir-div-form input {
+  padding: 10px 12px;
+  border: 1px solid #bdc3c7;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aply-job-form-fir-div-form input:focus {
+  border-color: #3498db;
+  box-shadow: 0px 0px 6px rgba(52, 152, 219, 0.4);
+}
+
+/* Read-only fields */
+.aply-job-form-fir-div-form input[readonly] {
+  background: #f4f6f7;
+  cursor: not-allowed;
+  color: #7f8c8d;
+}
+
+/* Submit button */
+.aply-job-form-fir-div-form button {
+  background: #3498db;
+  color: white;
+  padding: 12px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+.aply-job-form-fir-div-form button:hover {
+  background: #2980b9;
+}
+
+.aply-job-form-fir-div-form button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .aply-job-form-fir-div {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .aply-job-form-fir-div h2 {
+    font-size: 18px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ApplyJobsPositionEmp */
+
+
+
+.fir-div-apl-job-pos-emp {
+  padding: 20px;
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.fir-div-apl-job-pos-emp h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Table styling */
+.fir-div-apl-job-pos-emp-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fir-div-apl-job-pos-emp-table th,
+.fir-div-apl-job-pos-emp-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.fir-div-apl-job-pos-emp-table th {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+}
+
+.fir-div-apl-job-pos-emp-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Button styling */
+.fir-div-apl-job-pos-emp-table button {
+  background-color: #e53935;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.fir-div-apl-job-pos-emp-table button:hover {
+  background-color: #c62828;
+}

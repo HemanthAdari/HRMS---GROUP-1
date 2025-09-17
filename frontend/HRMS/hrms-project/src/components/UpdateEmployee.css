@@ -1,0 +1,100 @@
+/* Outer container */
+.update-emp-first-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f4f6f9;
+  min-height: 100vh;
+  padding: 30px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Current details card */
+.update-emp-second-div {
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.update-emp-second-div p {
+  margin: 8px 0;
+  font-size: 15px;
+  color: #444;
+}
+
+/* Form box */
+.update-emp-second-div-form {
+  background: #fff;
+  padding: 30px 35px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+/* Inputs */
+.update-emp-second-div-form input[type="text"],
+.update-emp-second-div-form input[type="email"],
+.update-emp-second-div-form input[type="password"],
+.update-emp-second-div-form input[type="tel"],
+.update-emp-second-div-form input[type="date"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.update-emp-second-div-form input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* Gender section */
+.update-emp-second-div-form h3 {
+  margin: 15px 0 8px;
+  font-size: 16px;
+  color: #333;
+  text-align: left;
+}
+
+.update-emp-second-div-form label {
+  display: inline-flex;
+  align-items: center;
+  margin: 5px 15px 5px 0;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+.update-emp-second-div-form input[type="radio"] {
+  margin-right: 6px;
+  accent-color: #4a90e2;
+}
+
+/* Submit button */
+.update-emp-second-div-sub-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.update-emp-second-div-sub-btn:hover {
+  background: #357ab8;
+  transform: translateY(-2px);
+}

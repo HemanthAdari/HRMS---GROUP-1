@@ -1,0 +1,486 @@
+/* attendance */
+
+/* .attendance{
+    display: flex;
+    align-items: center;
+}
+.attendanceTable{
+    margin-top: 20px;
+    width: 100%;
+    text-align: center;
+    border-collapse: collapse;
+}
+.attendanceFirstInp{
+    margin-top: 20px;
+}
+.attendanceTable th{
+    padding: 5px;
+    background-color: rgb(255, 149, 0);
+    color: white;
+}
+.attendanceTable td{
+    padding: 5px;
+} */
+
+/* new attendance */
+
+
+/* === Outer container === */
+.attendance {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f6f9;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* === Header section (logo) === */
+.aFirAttendance {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.aFirAttendance img {
+  height: 80px;
+  width: auto;
+}
+
+/* === Section title & filters === */
+.aSecAttendance {
+  background: #fff;
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.aSecAttendance h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  color: #333;
+}
+
+/* === Search input === */
+.attendanceFirstInp {
+  display: block;
+  margin: 0 auto 15px auto;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  width: 250px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.attendanceFirstInp:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 6px rgba(74, 144, 226, 0.4);
+  outline: none;
+}
+
+/* === Date filters === */
+.attendanceFirstDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.attendanceFirstDiv label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #444;
+}
+
+.attendanceFirstDiv input[type="date"] {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.attendanceFirstDiv input[type="date"]:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* === Table styling === */
+.attendanceTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.attendanceTable thead {
+  background: #4a90e2;
+  color: white;
+}
+
+.attendanceTable th,
+.attendanceTable td {
+  padding: 12px 15px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.attendanceTable tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.attendanceTable tr:hover {
+  background: #f1f7ff;
+  transition: 0.2s;
+}
+
+
+
+
+/* leave */
+
+/* .leave{
+    display: flex;
+}
+.leaveTable{
+    margin-top: 10px;
+}
+.leaveTable th{
+    padding: 5px;
+    background-color: rgb(255, 149, 0);
+    color: white;
+}
+.leaveTable td{
+    padding: 5px;
+}
+
+.leaveTableBtnFirst{
+    padding: 5px;
+    margin-left: 5px;
+    background-color: greenyellow;
+    border: none;
+    box-shadow: 1px 2px 2px rgb(105, 105, 105);
+}
+.leaveTableBtnSecond{
+    padding: 5px;
+    margin-left: 15px;
+    margin-right: 5px;
+    background-color: red;
+    border: none;
+    box-shadow: 1px 2px 2px rgb(105, 105, 105);
+} */
+
+
+
+
+
+/* new leave */
+
+
+/* ===== Leave Page Layout ===== */
+.leave {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background: #f8f9fb;
+}
+
+/* ===== Top Section (Logo) ===== */
+.firstLeave {
+  background: #222;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.firstLeave img {
+  height: 70px;
+  object-fit: contain;
+}
+
+/* ===== Content Section ===== */
+.secondLeave {
+  flex: 1;
+  padding: 30px;
+  text-align: center;
+}
+
+.secondLeave h1 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* ===== Table Styling ===== */
+.leaveTable {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.leaveTable th {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.leaveTable td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #ddd;
+}
+
+.leaveTable tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.leaveTable tr:hover {
+  background: #eef6ff;
+}
+
+/* ===== Buttons ===== */
+.leaveTableBtnFirst,
+.leaveTableBtnSecond {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  margin: 0 5px;
+}
+
+/* Yes Button */
+.leaveTableBtnFirst {
+  background: #28a745;
+  color: white;
+}
+
+.leaveTableBtnFirst:hover {
+  background: #218838;
+}
+
+/* No Button */
+.leaveTableBtnSecond {
+  background: #dc3545;
+  color: white;
+}
+
+.leaveTableBtnSecond:hover {
+  background: #c82333;
+}
+
+
+
+
+
+
+
+
+
+.aFirAttendance{
+    flex-basis: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+}
+.aSecAttendance{
+    display: flex;
+    flex-basis: 70%;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: antiquewhite;
+}
+.aSecAttendance h1{
+    margin-top: 10px;
+}
+.aFirAttendance img{
+    height: 200px;
+    width: 200px;
+    margin-left: 100px;
+    border: none;
+    margin-bottom: 100px;
+}
+.firstLeave{
+    flex-basis: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+}
+.firstLeave img{
+    height: 200px;
+    width: 200px;
+    margin-left: 100px;
+    border: none;
+    margin-bottom: 100px;
+}
+.secondLeave{
+    display: flex;
+    flex-basis: 70%;
+    flex-direction: column;
+    align-items: center;
+    background-color: antiquewhite;
+    height: 100vh;
+}
+.secondLeave h1{
+    margin-top: 10px;
+}
+.secondLeave table {
+  width: 100%;
+  border-collapse: collapse; /* optional but recommended */
+  text-align: center;
+}
+
+
+
+
+
+
+
+
+
+/* salary css */
+
+.salary-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.salary-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #007bff;
+  font-size: 24px;
+}
+
+.salary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 15px;
+}
+
+.salary-table thead {
+  background: #007bff;
+  color: #fff;
+}
+
+.salary-table th,
+.salary-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.salary-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.salary-table tr:hover {
+  background: #f1f7ff;
+}
+
+/* Salary input field */
+.salary-table input[type="number"] {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100px;
+  font-size: 14px;
+}
+
+/* Dropdown for month */
+.salary-table select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Year input */
+.salary-table input[type="number"].year-input {
+  width: 80px;
+  margin-left: 5px;
+  padding: 6px 10px;
+}
+
+/* Buttons */
+.salary-table button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.salary-table button:hover {
+  opacity: 0.9;
+}
+
+/* Specific button colors */
+.salary-table button:nth-child(1) {
+  background: #28a745;
+  color: #fff;
+}
+
+.salary-table button:nth-child(2) {
+  background: #ffc107;
+  color: #333;
+}
+
+.salary-table button.download-btn {
+  background: #007bff;
+  color: #fff;
+  margin-left: 6px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .salary-container {
+    padding: 15px;
+  }
+
+  .salary-table th,
+  .salary-table td {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .salary-table input,
+  .salary-table select {
+    font-size: 12px;
+  }
+
+  .salary-table button {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}

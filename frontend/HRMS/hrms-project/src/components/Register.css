@@ -1,0 +1,84 @@
+/* Outer container */
+.Register-first-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Form container */
+.Register-first-div-form {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  width: 380px;
+  box-shadow: 
+    0 8px 22px rgba(0, 0, 0, 0.35),  /* main darker shadow */
+    0 4px 10px rgba(0, 0, 0, 0.25);  /* softer spread */
+  text-align: center;
+}
+
+/* Input fields */
+.Register-first-div-form input[type="text"],
+.Register-first-div-form input[type="email"],
+.Register-first-div-form input[type="password"],
+.Register-first-div-form input[type="tel"],
+.Register-first-div-form input[type="date"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+/* Focus effect */
+.Register-first-div-form input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.4);
+}
+
+/* Gender section */
+.Register-first-div-form h3 {
+  margin: 15px 0 5px;
+  font-size: 16px;
+  color: #333;
+  text-align: left;
+}
+
+.Register-first-div-form label {
+  display: inline-flex;
+  align-items: center;
+  margin: 5px 10px 5px 0;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+}
+
+.Register-first-div-form input[type="radio"] {
+  margin-right: 6px;
+  accent-color: #4a90e2;
+}
+
+/* Submit button */
+.Register-first-div-form-sub-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.Register-first-div-form-sub-btn:hover {
+  background: #357ab8;
+}

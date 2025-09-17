@@ -1,0 +1,71 @@
+.main{
+    width: 100%;
+    height: 80px;
+    box-shadow: 0px 1px 5px;
+}
+
+.main article{
+    width: 90%;
+    height: inherit;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.logo{
+    flex-basis: 20%;
+}
+.logo h1{
+    font-size: 40px;
+    color: orange;
+}
+.menu{
+    flex-basis: 90%;
+}
+
+.menu a{
+    margin-left: 50px;
+    text-decoration: none;
+    color: black;
+}
+.menu a:hover{
+    color: blue;
+}
+.profile{
+    flex-basis: 10%;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+.dropbtn{
+    margin-left: 50px;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;   /* pushes it below Leave Management */
+  left: 0;
+  background-color: white;
+  width: 230px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1;
+  flex-direction: column; /* ensures vertical stacking */
+}
+
+.dropdown-content a {
+  display: inline;   /* make each link full-width */
+  background: none;
+  color: black;
+  padding: 10px;
+  text-decoration: none;
+}
+
+/* .dropdown-content a:hover {
+  background: #ddd;
+} */
+
+.dropdown:hover .dropdown-content {
+  display: flex; /* use flex column to keep items stacked */
+}
