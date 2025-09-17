@@ -1,152 +1,247 @@
-import { Eye, EyeOff } from 'lucide-react'; // npm install lucide-react
-import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { toast } from 'react-toastify';
-import './Login.css';
-import profile from '../assets/profile.png'
-import hrp from '../assets/image.png'
-import EmpNav from '../employee/EmpNav';
-import { EmailContext } from './EmailContext';
-import { useNavigate } from 'react-router-dom';
-import ApplyJobForm from './ApplyJobForm';
+import axios from "axios";
+import React, { useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import "./Login.css";
+import profile from "../assets/profile.png";
+import { EmailContext } from "./EmailContext";
+import ApplyJobForm from "./ApplyJobForm";
 
-const API = 'http://localhost:8080/api/employees/auth';
+const API = "http://localhost:8080/api/employees/auth";
+const REGISTER_API = "http://localhost:8080/api/employees/register";
 const Job_API = "http://localhost:8080/api/job-opening/get-all-job";
-const APPLY_JOB_API = "http://localhost:8080/api/apply-job";
 
 const Login = ({ setRole }) => {
-    const [form, setForm] = useState({ email: '', password: '' });
-    const { setEmail } = useContext(EmailContext);
-    const [job, setJob] = useState([]);
-    const navigate = useNavigate();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [registerForm, setRegisterForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    phone: "",
+  });
+  const { setEmail } = useContext(EmailContext);
+  const [job, setJob] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
 
-    // ⚡ New state for showing ApplyJobForm
-    const [selectedJob, setSelectedJob] = useState(null);
+  // ⚡ Toggle between Login & Register
+  const [isRegister, setIsRegister] = useState(false);
 
-    useEffect(() => {
-        axios.get(Job_API)
-            .then(res => setJob(res.data))
-            .catch(err => console.log(err))
-    }, []);
+  useEffect(() => {
+    axios
+      .get(Job_API)
+      .then((res) => setJob(res.data))
+      .catch((err) => console.log(err));
+  }, []);
 
+  // Login submit
+  const handleLogin = (e) => {
+    e.preventDefault();
+    axios
+      .post(API, form)
+      .then((res) => {
+        toast.success("Login success");
 
+        if (
+          (form.email === "aa@gamil.com" && form.password === "aaaa") ||
+          (form.email === "sagars52@gamil.com" &&
+            form.password === "sagar@sss")
+        ) {
+          setRole("hr");
+          setEmail(form.email);
+        } else {
+          setRole("emp");
+          setEmail(form.email);
+        }
+      })
+      .catch(() => {
+        toast.error("Invalid email or password");
+      });
+  };
 
-    const handleChange = e => {
-        e.preventDefault();
+  // Register submit
+  const handleRegister = (e) => {
+    e.preventDefault();
+    axios
+      .post(REGISTER_API, registerForm)
+      .then(() => {
+        toast.success("Registration successful! Please login.");
+        setIsRegister(false);
+      })
+      .catch(() => {
+        toast.error("Registration failed. Try again.");
+      });
+  };
 
-        axios.post(API, form)
-            .then(res => {
-                toast.success("Login success");
+  const handleApplyClick = (job) => {
+    setSelectedJob(job);
+  };
 
-                // Example role check
-                if (form.email === 'aa@gamil.com' && form.password === 'aaaa') {
-                    setRole("hr");   // HR Section will render
-                    setEmail(form.email);
-                } else {
-                    setRole("emp"); // Employee Section will render
-                    setEmail(form.email);
-                }
-            })
-            .catch(err => {
-                toast.error("Invalid email or password");
-                console.log(form)
-            });
-    };
-
-    // ⚡ Store the job to re-render ApplyJobForm
-    const handleApplyClick = (job) => {
-        setSelectedJob(job);
-    };
-
-    return (
-        <div>
-            <div className="login-container">
-                <div className="login-container-first-div">
-                    <h1>HR</h1>
-                    <h2>Management System</h2>
-                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. <br /> Ad earum unde quae cum in, dolor possimus molestiae <br /> excepturi incidunt reiciendis natus vero totam repudiandae <br /> ab vitae qui. Nam, repudiandae deleniti facere magnam <br /> corporis atque voluptates maxime nihil earum ipsam <br /> pariatur officia molestiae? Provident architecto doloribus <br /> non cumque quia, voluptatum fugit eaque officiis ea <br /> magnam quis cum saepe eligendi dicta tempora corporis <br /> enim ut dolores perspiciatis ratione. Numquam laudantium <br /> deserunt harum distinctio. Nulla, possimus dicta! Saepe, <br /> et. Nesciunt ab repellendus possimus maxime dolores <br /> rerum quis itaque, unde autem quidem enim voluptas <br /> vitae, molestiae eos. Repellat, odio dolores nisi quasi <br /> iure aut.</p>
-
-                </div>
-                <div className="login-card">
-                    {/* Left Section - Welcome */}
-                    <div className="welcome-section">
-                        <div className="welcome-content">
-                            <h1>Welcome</h1>
-                            <p>TO HRMS</p>
-
-                        </div>
-
-                        {/* Decorative circles */}
-                        <div className="circle circle-1"></div>
-                        <div className="circle circle-2"></div>
-                        <div className="circle circle-3"></div>
-                    </div>
-
-                    {/* Right Section - Login Form */}
-                    <div className="login-section">
-                        <div className="login-form-container">
-                            <h2>Login to HRMS Portal</h2>
-
-                            <form onSubmit={handleChange}>
-                                {/* <h1>HRMS</h1> */}
-                                <hr className="titleLine" />
-                                <img src={profile} alt="" />
-                                <br /><hr />
-                                <input
-                                    type="email"
-                                    className='inp'
-                                    placeholder='enter email'
-                                    value={form.email}
-                                    onChange={e => setForm({ ...form, email: e.target.value })}
-                                />
-                                <br />
-                                <input
-                                    type="password"
-                                    className='inp'
-                                    placeholder='password'
-                                    value={form.password}
-                                    onChange={e => setForm({ ...form, password: e.target.value })}
-                                />
-                                <br /><hr />
-                                <input type="submit" className='sub' value='login' />
-                            </form>
-
-                            <div className="activate-windows">
-                                <span>Activate Windows</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Footer watermark */}
-                <div className="footer-watermark">934 × 524</div>
-            </div>
-
-
-
-
-            <div className="job-openings-section">
-                <h2>Current Job Openings</h2>
-
-                {/* ⚡ Conditional rendering */}
-                {selectedJob ? (
-                    <ApplyJobForm job={selectedJob} />
-                ) : (
-                    <div className="job-cards-container">
-                        {job.map((j) => (
-                            <div key={j.jobPositionId} className='job-card'>
-                                <h3>{j.jobPosition}</h3>
-                                <p><b>Location: </b>{j.location}</p>
-                                <p><b>Experience: </b>{j.experience}</p>
-                                <p><b>Skills: </b>{j.skills}</p>
-                                <button onClick={() => handleApplyClick(j)}>Apply Now</button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+  return (
+    <div>
+      <div className="login-container">
+        <div className="login-container-first-div">
+          <h1>HR</h1>
+          <h2>Management System</h2>
+          <p>
+            Welcome to HRMS – Manage employees, jobs, and more with ease!
+          </p>
         </div>
-    );
+
+        <div className="login-card">
+          {/* Left Section */}
+          <div className="welcome-section">
+            <div className="welcome-content">
+              <h1>Welcome</h1>
+              <p>TO HRMS</p>
+            </div>
+            <div className="circle circle-1"></div>
+            <div className="circle circle-2"></div>
+            <div className="circle circle-3"></div>
+          </div>
+
+          {/* Right Section */}
+          <div className="login-section">
+            <div className="login-form-container">
+              {isRegister ? (
+                <>
+                  <h2>Register New Account</h2>
+                  <form onSubmit={handleRegister}>
+                    <input
+                      type="text"
+                      className="inp"
+                      placeholder="Full Name"
+                      value={registerForm.fullName}
+                      onChange={(e) =>
+                        setRegisterForm({
+                          ...registerForm,
+                          fullName: e.target.value,
+                        })
+                      }
+                    />
+                    <br />
+                    <input
+                      type="email"
+                      className="inp"
+                      placeholder="Email"
+                      value={registerForm.email}
+                      onChange={(e) =>
+                        setRegisterForm({
+                          ...registerForm,
+                          email: e.target.value,
+                        })
+                      }
+                    />
+                    <br />
+                    <input
+                      type="password"
+                      className="inp"
+                      placeholder="Password"
+                      value={registerForm.password}
+                      onChange={(e) =>
+                        setRegisterForm({
+                          ...registerForm,
+                          password: e.target.value,
+                        })
+                      }
+                    />
+                    <br />
+                    <input
+                      type="text"
+                      className="inp"
+                      placeholder="Phone"
+                      value={registerForm.phone}
+                      onChange={(e) =>
+                        setRegisterForm({
+                          ...registerForm,
+                          phone: e.target.value,
+                        })
+                      }
+                    />
+                    <br />
+                    <input type="submit" className="sub" value="Register" />
+                  </form>
+                  <button
+                    className="sub"
+                    style={{ marginTop: "10px", backgroundColor: "#2196F3" }}
+                    onClick={() => setIsRegister(false)}
+                  >
+                    Back to Login
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2>Login to HRMS Portal</h2>
+                  <form onSubmit={handleLogin}>
+                    <hr className="titleLine" />
+                    <img src={profile} alt="" />
+                    <br />
+                    <hr />
+                    <input
+                      type="email"
+                      className="inp"
+                      placeholder="Enter email"
+                      value={form.email}
+                      onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })
+                      }
+                    />
+                    <br />
+                    <input
+                      type="password"
+                      className="inp"
+                      placeholder="Password"
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
+                    />
+                    <br />
+                    <hr />
+                    <input type="submit" className="sub" value="Login" />
+                  </form>
+                  <button
+                    className="sub"
+                    style={{ marginTop: "10px", backgroundColor: "#4CAF50" }}
+                    onClick={() => setIsRegister(true)}
+                  >
+                    Register
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Jobs Section */}
+      <div className="job-openings-section">
+        <h2>Current Job Openings</h2>
+        {selectedJob ? (
+          <ApplyJobForm job={selectedJob} />
+        ) : (
+          <div className="job-cards-container">
+            {job.map((j) => (
+              <div key={j.jobPositionId} className="job-card">
+                <h3>{j.jobPosition}</h3>
+                <p>
+                  <b>Location: </b>
+                  {j.location}
+                </p>
+                <p>
+                  <b>Experience: </b>
+                  {j.experience}
+                </p>
+                <p>
+                  <b>Skills: </b>
+                  {j.skills}
+                </p>
+                <button onClick={() => handleApplyClick(j)}>Apply Now</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Login;
