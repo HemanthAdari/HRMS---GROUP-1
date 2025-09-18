@@ -27,12 +27,19 @@ public class User {
     @Column(nullable = false, length = 20)
     private Role role;
 
+    // Added name fields so we can copy them into role-specific tables
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+
+    @Column(name = "last_name", length = 50)
+    private String lastName;
+
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
     public enum Role {
-        employee,
-        hr_manager,
-        admin
+        EMPLOYEE,
+        HR_MANAGER,
+        ADMIN
     }
 }
