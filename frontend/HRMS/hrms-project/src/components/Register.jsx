@@ -1,46 +1,70 @@
+// Register.jsx
 import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "./Register.css";
 
-const API = "http://localhost:8080/api/employees"; // ✅ check plural
+const API = "http://localhost:8080/auth/api/register";
 
 const Register = () => {
   const [form, setForm] = useState({
     email: "",
+    password: "",
+    role: "",       // added role
     address: "",
     fullName: "",
     gender: "",
     hireDate: "",
-    password: "",
     phone: "",
     salary: "",
   });
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    // split fullName into firstName & lastName for backend DTO
+    const name = (form.fullName || "").trim();
+    const nameParts = name ? name.split(/\s+/) : [];
+    const payload = {
+      email: form.email,
+      password: form.password,
+      role: form.role || "",                // required by backend
+      firstName: nameParts[0] || "",
+      lastName: nameParts.slice(1).join(" ") || "",
+      // other optional fields (backend may ignore if DTO doesn't include them)
+      address: form.address,
+      gender: form.gender,
+      hireDate: form.hireDate,
+      phone: form.phone,
+      salary: form.salary,
+    };
+
     try {
-      const res = await axios.post(API, form, {
+      const res = await axios.post(API, payload, {
         headers: { "Content-Type": "application/json" },
       });
-      console.log("✅ Response:", res.data);
 
-      toast.success("Employee registered successfully");
+      // success
+      console.log("✅ Response:", res.data);
+      toast.success("Registered: " + (res.data.email || "Success"));
 
       // clear form
       setForm({
         email: "",
+        password: "",
+        role: "",
         address: "",
         fullName: "",
         gender: "",
         hireDate: "",
-        password: "",
         phone: "",
         salary: "",
       });
     } catch (err) {
-      console.error("❌ Error:", err.response || err);
-      toast.error("Error registering employee");
+      console.error("❌ Error:", err.response?.data || err);
+      // show backend message if present
+      const serverMsg = err.response?.data?.error || err.message || "Registration failed";
+      toast.error(serverMsg);
     }
   };
 
@@ -52,7 +76,38 @@ const Register = () => {
           placeholder="enter email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
+          required
         />
+        <br />
+
+        <input
+          type="password"
+          placeholder="password"
+          value={form.password}
+          onChange={(e) => setForm({ ...form, password: e.target.value })}
+          required
+        />
+        <br />
+
+        <input
+          type="text"
+          placeholder="Full name"
+          value={form.fullName}
+          onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+        />
+        <br />
+
+        {/* Role selector */}
+        <select
+          value={form.role}
+          onChange={(e) => setForm({ ...form, role: e.target.value })}
+          required
+        >
+          <option value="">Select Role</option>
+          <option value="ADMIN">Admin</option>
+          <option value="EMPLOYEE">Employee</option>
+          <option value="HR_MANAGER">HR</option>
+        </select>
         <br />
 
         <input
@@ -60,14 +115,6 @@ const Register = () => {
           placeholder="address"
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
-        />
-        <br />
-
-        <input
-          type="text"
-          placeholder="full name"
-          value={form.fullName}
-          onChange={(e) => setForm({ ...form, fullName: e.target.value })}
         />
         <br />
 
@@ -114,14 +161,6 @@ const Register = () => {
         <br />
 
         <input
-          type="password"
-          placeholder="password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-        <br />
-
-        <input
           type="tel"
           placeholder="phone"
           value={form.phone}
@@ -137,7 +176,9 @@ const Register = () => {
         />
         <br />
 
-        <button className="Register-first-div-form-sub-btn" type="submit">Register</button>
+        <button className="Register-first-div-form-sub-btn" type="submit">
+          Register
+        </button>
       </form>
     </div>
   );

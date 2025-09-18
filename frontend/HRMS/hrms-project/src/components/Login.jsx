@@ -1,3 +1,4 @@
+// Login.jsx
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -6,8 +7,8 @@ import profile from "../assets/profile.png";
 import { EmailContext } from "./EmailContext";
 import ApplyJobForm from "./ApplyJobForm";
 
-const API = "http://localhost:8080/api/employees/auth";
-const REGISTER_API = "http://localhost:8080/api/employees/register";
+const API = "http://localhost:8080/auth/api/login";
+const REGISTER_API = "http://localhost:8080/auth/api/register";
 const Job_API = "http://localhost:8080/api/job-opening/get-all-job";
 
 const Login = ({ setRole }) => {
@@ -17,12 +18,15 @@ const Login = ({ setRole }) => {
     email: "",
     password: "",
     phone: "",
+    role: "",
   });
-  const { setEmail } = useContext(EmailContext);
+
+  // from context
+  const { setEmail, setUserId, setRole: setCtxRole } = useContext(EmailContext);
+
   const [job, setJob] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // ⚡ Toggle between Login & Register
   const [isRegister, setIsRegister] = useState(false);
 
   useEffect(() => {
@@ -36,38 +40,62 @@ const Login = ({ setRole }) => {
   const handleLogin = (e) => {
     e.preventDefault();
     axios
-      .post(API, form)
+      .post(API, form, { headers: { "Content-Type": "application/json" } })
       .then((res) => {
         toast.success("Login success");
 
-        if (
-          (form.email === "aa@gamil.com" && form.password === "aaaa") ||
-          (form.email === "sagars52@gamil.com" &&
-            form.password === "sagar@sss")
-        ) {
+        const roleFromServer = res.data?.role || "";
+
+        if (roleFromServer === "ADMIN") {
+          setRole("admin");
+          setCtxRole("ADMIN");
+        } else if (roleFromServer === "HR_MANAGER") {
           setRole("hr");
-          setEmail(form.email);
+          setCtxRole("HR_MANAGER");
         } else {
           setRole("emp");
-          setEmail(form.email);
+          setCtxRole("EMPLOYEE");
         }
+
+        // save in context
+        setEmail(res.data?.email || form.email);
+        setUserId(res.data?.userId);
+
+        // save in localStorage
+        localStorage.setItem("userId", String(res.data?.userId));
+        localStorage.setItem("email", res.data?.email || form.email);
+        localStorage.setItem("role", roleFromServer);
       })
-      .catch(() => {
-        toast.error("Invalid email or password");
+      .catch((err) => {
+        console.error("Login error:", err.response?.data || err);
+        toast.error(err.response?.data?.error || "Invalid email or password");
       });
   };
 
   // Register submit
   const handleRegister = (e) => {
     e.preventDefault();
+
+    const name = (registerForm.fullName || "").trim();
+    const nameParts = name ? name.split(/\s+/) : [];
+    const payload = {
+      email: registerForm.email,
+      password: registerForm.password,
+      role: registerForm.role || "",
+      firstName: nameParts[0] || "",
+      lastName: nameParts.slice(1).join(" ") || "",
+      phone: registerForm.phone,
+    };
+
     axios
-      .post(REGISTER_API, registerForm)
+      .post(REGISTER_API, payload, { headers: { "Content-Type": "application/json" } })
       .then(() => {
         toast.success("Registration successful! Please login.");
         setIsRegister(false);
       })
-      .catch(() => {
-        toast.error("Registration failed. Try again.");
+      .catch((err) => {
+        console.error("Registration error:", err.response?.data || err);
+        toast.error(err.response?.data?.error || "Registration failed. Try again.");
       });
   };
 
@@ -81,9 +109,7 @@ const Login = ({ setRole }) => {
         <div className="login-container-first-div">
           <h1>HR</h1>
           <h2>Management System</h2>
-          <p>
-            Welcome to HRMS – Manage employees, jobs, and more with ease!
-          </p>
+          <p>Welcome to HRMS – Manage employees, jobs, and more with ease!</p>
         </div>
 
         <div className="login-card">
@@ -111,10 +137,7 @@ const Login = ({ setRole }) => {
                       placeholder="Full Name"
                       value={registerForm.fullName}
                       onChange={(e) =>
-                        setRegisterForm({
-                          ...registerForm,
-                          fullName: e.target.value,
-                        })
+                        setRegisterForm({ ...registerForm, fullName: e.target.value })
                       }
                     />
                     <br />
@@ -124,10 +147,7 @@ const Login = ({ setRole }) => {
                       placeholder="Email"
                       value={registerForm.email}
                       onChange={(e) =>
-                        setRegisterForm({
-                          ...registerForm,
-                          email: e.target.value,
-                        })
+                        setRegisterForm({ ...registerForm, email: e.target.value })
                       }
                     />
                     <br />
@@ -137,10 +157,7 @@ const Login = ({ setRole }) => {
                       placeholder="Password"
                       value={registerForm.password}
                       onChange={(e) =>
-                        setRegisterForm({
-                          ...registerForm,
-                          password: e.target.value,
-                        })
+                        setRegisterForm({ ...registerForm, password: e.target.value })
                       }
                     />
                     <br />
@@ -150,12 +167,23 @@ const Login = ({ setRole }) => {
                       placeholder="Phone"
                       value={registerForm.phone}
                       onChange={(e) =>
-                        setRegisterForm({
-                          ...registerForm,
-                          phone: e.target.value,
-                        })
+                        setRegisterForm({ ...registerForm, phone: e.target.value })
                       }
                     />
+                    <br />
+                    <select
+                      className="inp"
+                      value={registerForm.role}
+                      onChange={(e) =>
+                        setRegisterForm({ ...registerForm, role: e.target.value })
+                      }
+                      required
+                    >
+                      <option value="">Select Role</option>
+                      <option value="ADMIN">Admin</option>
+                      <option value="EMPLOYEE">Employee</option>
+                      <option value="HR_MANAGER">HR</option>
+                    </select>
                     <br />
                     <input type="submit" className="sub" value="Register" />
                   </form>
@@ -183,6 +211,7 @@ const Login = ({ setRole }) => {
                       onChange={(e) =>
                         setForm({ ...form, email: e.target.value })
                       }
+                      required
                     />
                     <br />
                     <input
@@ -193,6 +222,7 @@ const Login = ({ setRole }) => {
                       onChange={(e) =>
                         setForm({ ...form, password: e.target.value })
                       }
+                      required
                     />
                     <br />
                     <hr />
