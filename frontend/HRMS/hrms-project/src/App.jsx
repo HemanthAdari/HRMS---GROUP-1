@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+// src/App.jsx
+import React, { useState, useEffect } from 'react'
 import { ToastContainer } from 'react-toastify'
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
@@ -21,43 +22,67 @@ import UpdateEmployee from './components/UpdateEmployee';
 import AddJobPosition from './components/AddJobPosition';
 import GetAllJob from './job/GetAllJob';
 import GetSingleJob from './job/GetSingleJob';
-import { AppleIcon } from 'lucide-react';
 import ApplyJobForm from './components/ApplyJobForm';
 import ApplyJobsPositionEmp from './components/ApplyJobsPositionEmp';
+import HrPendingUsers from './components/HrPendingUsers';
+
+const ROLE_KEY = "hrms_role";
 
 const App = () => {
-  const [role, setRole] = useState("");  // '' | 'hr' | 'emp'
-  
+  // initialize role from localStorage (so refresh keeps user logged in)
+  const initialRole = typeof window !== "undefined" ? localStorage.getItem(ROLE_KEY) || "" : "";
+  const [role, setRoleState] = useState(initialRole);
+
+  // wrapper so every change persists to localStorage
+  const setRole = (r) => {
+    setRoleState(r || "");
+    if (r) {
+      localStorage.setItem(ROLE_KEY, r);
+    } else {
+      localStorage.removeItem(ROLE_KEY);
+    }
+  };
+
+  // Optional: expose logout handler to pass down
+  const logout = () => setRole("");
+
+  // If you want to auto-redirect on mount based on role, you could do that here
+  useEffect(() => {
+    // example: console.log("current role:", role);
+  }, [role]);
+
   return (
     <div>
       <BrowserRouter>
         <ToastContainer />
-        
+
+        {/* Login component should call setRole(...) on success */}
         {!role && <Login setRole={setRole} />}
 
         {role === "hr" && (
           <>
-            <NavBar />
+            <NavBar logout={logout} />
             <Routes>
               <Route path="/" element={<Dashboard />} />
-                <Route path='/a/dash/regi' element={<Register/>}/>
-                <Route path='/a/dash/add-job' element={<AddJobPosition/>}/>
-                <Route path='/a/dash/get-all-job' element={<GetAllJob/>}/>
-                <Route path='/a/dash/get-single-job' element={<GetSingleJob/>}/>
-                <Route path='/a/dash/apply-jobs' element={<ApplyJobsPositionEmp/>}/>
+              <Route path='/a/dash/regi' element={<Register/>}/>
+              <Route path='/a/dash/add-job' element={<AddJobPosition/>}/>
+              <Route path='/a/dash/get-all-job' element={<GetAllJob/>}/>
+              <Route path='/a/dash/get-single-job' element={<GetSingleJob/>}/>
+              <Route path='/a/dash/apply-jobs' element={<ApplyJobsPositionEmp/>}/>
               <Route path="/a/emp" element={<Employees />} />
-                <Route path='/a/emp/update' element={<UpdateEmployee/>}/>
+              <Route path='/a/emp/update' element={<UpdateEmployee/>}/>
               <Route path="/a/att" element={<Attendance />} />
               <Route path="/a/leave/request" element={<RequestLeave />} />
               <Route path="/a/leave/approved" element={<ApproveLeave />} />
               <Route path="/a/sal" element={<Salary />} />
+              <Route path="/a/pending-users" element={<HrPendingUsers />} />
             </Routes>
           </>
         )}
 
         {role === "emp" && (
           <>
-            <EmpNav />
+            <EmpNav logout={logout} />
             <Routes>
               <Route path="/" element={<Navigate to="/e/dash" replace />} />
               <Route path="/e/dash" element={<EmpDashboard />} />
