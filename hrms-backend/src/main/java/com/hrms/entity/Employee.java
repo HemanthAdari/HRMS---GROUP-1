@@ -1,7 +1,10 @@
 package com.hrms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employees")
@@ -16,6 +19,7 @@ public class Employee {
     @Column(name = "employee_id")
     private Integer employeeId;
 
+    // link to user (one-to-one)
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -36,14 +40,23 @@ public class Employee {
     private String phone;
 
     @Column(length = 255)
-    private String address;
+    private String address;        // combined address (address1 + address2 if used)
+
+    @Column(name = "address2", length = 255)
+    private String address2;       // optional second line
 
     @Column(name = "salary")
-    private Double salary;  // ✅ Added salary field
+    private Double salary;
 
-    // ✅ Derived property: not stored in DB
+    @Column(length = 10)
+    private String gender;         // e.g. "male","female","other"
+
+    @Column(name = "hire_date")
+    private LocalDate hireDate;
+
+    // Derived property not stored in DB
     @Transient
     public String getFullName() {
-        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+        return (firstName != null ? firstName : "") + (lastName != null && !lastName.isBlank() ? " " + lastName : "");
     }
 }

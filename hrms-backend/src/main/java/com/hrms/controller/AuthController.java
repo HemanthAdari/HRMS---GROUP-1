@@ -131,6 +131,7 @@ public class AuthController {
             payload.put("userId", u.getUserId());
             if (u.getEmail() != null) payload.put("email", u.getEmail());
             if (u.getRole() != null) payload.put("role", u.getRole().name());
+            if (u.getStatus() != null) payload.put("status", u.getStatus().name()); // <-- added status
             return ResponseEntity.ok(payload);
         } else {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
