@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Employee {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employee_id")
@@ -36,4 +37,13 @@ public class Employee {
 
     @Column(length = 255)
     private String address;
+
+    @Column(name = "salary")
+    private Double salary;  // ✅ Added salary field
+
+    // ✅ Derived property: not stored in DB
+    @Transient
+    public String getFullName() {
+        return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "");
+    }
 }

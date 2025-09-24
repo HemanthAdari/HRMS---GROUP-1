@@ -1,10 +1,14 @@
 package com.hrms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
+/**
+ * Entity mapping for the "salaries" table.
+ */
 @Entity
 @Table(name = "salaries")
 @Data
@@ -27,8 +31,8 @@ public class Salary {
     @Column(name = "remarks", length = 255)
     private String remarks;
 
-    // link to employee (matches your salaries.employee_id column)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", nullable = false)
+    @JsonIgnore // avoid circular serialization problems
     private Employee employee;
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/employees")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class EmployeeController {
 
     private final EmployeeService service;
@@ -23,6 +23,20 @@ public class EmployeeController {
     public ResponseEntity<Employee> getById(@PathVariable Integer id) {
         return service.findById(id).map(ResponseEntity::ok)
                       .orElse(ResponseEntity.notFound().build());
+    }
+
+    // NEW endpoint: get employee by user email
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<Employee> getByEmail(@PathVariable String email) {
+        return service.findByUserEmail(email)
+                .map(emp -> {
+                    // hide passwordHash if user present
+                    if (emp.getUser() != null) {
+                        emp.getUser().setPasswordHash(null);
+                    }
+                    return ResponseEntity.ok(emp);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping

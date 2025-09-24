@@ -29,6 +29,10 @@ public class SalaryService {
         return salaryRepository.findByEmployeeEmployeeId(employeeId);
     }
 
+    /**
+     * Save salary and attach to employee.
+     * Throws IllegalArgumentException if employee not found.
+     */
     public Salary saveForEmployee(Integer employeeId, Salary salary) {
         Employee emp = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found for id: " + employeeId));

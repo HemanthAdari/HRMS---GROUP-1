@@ -33,4 +33,9 @@ public class EmployeeService {
     public void deleteById(Integer id) {
         repo.deleteById(id);
     }
+
+    // NEW: find employee by the user's email
+    public Optional<Employee> findByUserEmail(String email) {
+        return repo.findByUserEmail(email);
+    }
 }

@@ -1,5 +1,6 @@
 package com.hrms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+// avoid printing passwordHash in logs when Lombok generates toString / equals/hashCode
+@ToString(exclude = "passwordHash")
+@EqualsAndHashCode(exclude = "passwordHash")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +24,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
@@ -34,6 +39,7 @@ public class User {
     @Column(name = "last_name", length = 50)
     private String lastName;
 
+    // Database-managed timestamp (example: DEFAULT CURRENT_TIMESTAMP)
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 

@@ -53,14 +53,22 @@ public class SalaryController {
                 return ResponseEntity.badRequest().body(Map.of("error", "employeeId, amount and paymentDate are required"));
             }
 
-            // Build Salary entity (use LocalDate parsing inside entity mapping via JSON -> handled by Jackson if you prefer)
-            com.hrms.entity.Salary s = new com.hrms.entity.Salary();
+            Salary s = new Salary();
             s.setAmount(amount);
             s.setPaymentDate(java.time.LocalDate.parse(paymentDate));
             s.setRemarks(remarks);
 
             Salary saved = salaryService.saveForEmployee(employeeId, s);
-            return ResponseEntity.ok(saved);
+
+            // return salary details + employee info
+            return ResponseEntity.ok(Map.of(
+                    "salaryId", saved.getSalaryId(),
+                    "amount", saved.getAmount(),
+                    "paymentDate", saved.getPaymentDate(),
+                    "remarks", saved.getRemarks(),
+                    "employeeId", saved.getEmployee().getEmployeeId(),
+                    "employeeName", saved.getEmployee().getFirstName() + " " + saved.getEmployee().getLastName()
+            ));
         } catch (IllegalArgumentException iae) {
             return ResponseEntity.badRequest().body(Map.of("error", iae.getMessage()));
         } catch (Exception ex) {
