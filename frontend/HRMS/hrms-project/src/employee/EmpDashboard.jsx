@@ -1,3 +1,4 @@
+// src/employee/EmpDashboard.jsx
 import React, { useContext, useEffect, useState } from 'react';
 import { EmailContext } from '../components/EmailContext';
 import axios from 'axios';
@@ -24,7 +25,6 @@ const EmpDashboard = () => {
 
   // Helper: normalize attendance record fields for robust matching
   const normalizeAttendance = (a) => {
-    // possible date fields: date, attendance_date, attendanceDate
     const date =
       a.date ||
       a.attendance_date ||
@@ -34,7 +34,6 @@ const EmpDashboard = () => {
       a.attendance_date_time ||
       null;
 
-    // possible status fields: status, attendance, state
     const status =
       a.status ||
       a.attendance ||
@@ -42,9 +41,8 @@ const EmpDashboard = () => {
       a.attendanceStatus ||
       null;
 
-    // possible user/email: a.user?.email or a.email
     const emailVal =
-      a.user?.email ||
+      (a.user && (a.user.email || a.userEmail)) ||
       a.userEmail ||
       a.email ||
       (typeof a.user === 'string' ? a.user : null);
@@ -61,22 +59,18 @@ const EmpDashboard = () => {
     const fetchData = async () => {
       if (!email) return;
       try {
+        // fetch all attendance & leave (we will filter on client)
         const [attRes, leaveRes] = await Promise.allSettled([
           axios.get(ATT_API),
           axios.get(LEAVE_API)
         ]);
 
-        // attendance
         const attData = attRes.status === 'fulfilled' ? attRes.value.data : [];
         const leaveData = leaveRes.status === 'fulfilled' ? leaveRes.value.data : [];
-
-        console.log('[EmpDashboard] Raw attendance sample:', attData.slice(0, 8));
-        console.log('[EmpDashboard] Raw leave sample:', leaveData.slice(0, 8));
 
         // normalize & filter to this user's email
         const normalized = (attData || []).map(normalizeAttendance);
 
-        // Some backends return user.email in nested user, others put email directly on record.
         const attendanceForUser = normalized.filter(n => {
           const recordEmail = (n.email || '').toString().toLowerCase();
           return recordEmail === (email || '').toString().toLowerCase();
@@ -85,12 +79,10 @@ const EmpDashboard = () => {
         // filter by month/year
         const monthlyAttendance = attendanceForUser.filter(n => {
           if (!n.date) return false;
-          // try to parse date; accept "YYYY-MM-DD" and ISO
           let d;
           try {
             d = new Date(n.date);
             if (isNaN(d)) {
-              // try strip time or other formats
               d = new Date(String(n.date).split('T')[0]);
             }
           } catch (e) {
@@ -99,7 +91,7 @@ const EmpDashboard = () => {
           return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
         });
 
-        // compute counts using normalized status values (handle case-insensitive)
+        // compute counts using normalized status values (case-insensitive)
         const fullDay = monthlyAttendance.filter(a => {
           const s = (a.status || '').toString().toUpperCase();
           return s === 'FULL_DAY' || s === 'PRESENT_FULL_DAY' || s === 'PRESENT_FULL' || s === 'PRESENT_FULLDAY';
@@ -115,7 +107,7 @@ const EmpDashboard = () => {
           return s === 'ABSENT' || s === 'A' || s === 'ABS';
         }).length;
 
-        // leaves: backend leave objects might have date or startDate and response/approved flag
+        // normalize leaves: check response/approved flag
         const normalizedLeaves = (leaveData || []).map(l => {
           return {
             raw: l,
@@ -154,8 +146,6 @@ const EmpDashboard = () => {
     // fetch employee by email (backend may return array or object)
     axios.get(`${EMP_BY_EMAIL_API}/${encodeURIComponent(email)}`)
       .then(res => {
-        console.log('[EmpDashboard] /employees/by-email response:', res.data);
-        // backend might return { } or [ {} ]
         let emp = res.data;
         if (Array.isArray(emp)) {
           emp = emp.length ? emp[0] : null;
@@ -173,10 +163,20 @@ const EmpDashboard = () => {
   }, [email]);
 
   const handleDownloadReceipt = () => {
-    if (!employee) {
-      alert("No employee data found yet. Payroll / employee profile might not be created.");
-      return;
-    }
+    // If employee object missing, create a lightweight fallback using email + defaults,
+    // so PDF generation still works for users who have attendance/leave but no employee row.
+    const emp = employee || {
+      email: email || '',
+      firstName: '',
+      lastName: '',
+      fullName: email || '',
+      phone: '',
+      address: '',
+      gender: '',
+      hireDate: '',
+      salary: 0,
+      user: { email: email || '' }
+    };
 
     const { fullDay, halfDay, leaves } = totals;
     const fullDaySalary = fullDay * 500;
@@ -190,12 +190,15 @@ const EmpDashboard = () => {
     doc.text("Salary Receipt", 70, 20);
 
     doc.setFontSize(12);
-    doc.text(`Full Name: ${employee.fullName || employee.firstName + ' ' + (employee.lastName || '')}`, 20, 40);
-    doc.text(`Email: ${employee.email || employee.user?.email || ''}`, 20, 50);
-    doc.text(`Phone: ${employee.phone || ''}`, 20, 60);
-    doc.text(`Address: ${employee.address || ''}`, 20, 70);
-    doc.text(`Gender: ${employee.gender || ''}`, 20, 80);
-    doc.text(`Hire Date: ${employee.hireDate || ''}`, 20, 90);
+
+    const displayName = emp.fullName || (emp.firstName ? `${emp.firstName} ${emp.lastName || ''}` : emp.email || emp.user?.email || '');
+
+    doc.text(`Full Name: ${displayName}`, 20, 40);
+    doc.text(`Email: ${emp.email || emp.user?.email || ''}`, 20, 50);
+    doc.text(`Phone: ${emp.phone || ''}`, 20, 60);
+    doc.text(`Address: ${emp.address || ''}`, 20, 70);
+    doc.text(`Gender: ${emp.gender || ''}`, 20, 80);
+    doc.text(`Hire Date: ${emp.hireDate || ''}`, 20, 90);
 
     doc.text(`Month: ${selectedMonth + 1}/${selectedYear}`, 20, 100);
 
@@ -210,7 +213,8 @@ const EmpDashboard = () => {
     doc.setFontSize(12);
     doc.text("This is a system-generated salary receipt.", 20, 165);
 
-    doc.save(`SalaryReceipt_${(employee.fullName || employee.firstName || 'employee')}_${selectedMonth + 1}_${selectedYear}.pdf`);
+    const fileNameSafe = (displayName || 'employee').replace(/[^a-z0-9_\-]/gi, '_');
+    doc.save(`SalaryReceipt_${fileNameSafe}_${selectedMonth + 1}_${selectedYear}.pdf`);
   };
 
   const months = [

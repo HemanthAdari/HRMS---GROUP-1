@@ -1,4 +1,3 @@
-// Register.jsx
 import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
@@ -10,7 +9,6 @@ const Register = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: "",       // added role
     address: "",
     fullName: "",
     gender: "",
@@ -25,13 +23,13 @@ const Register = () => {
     // split fullName into firstName & lastName for backend DTO
     const name = (form.fullName || "").trim();
     const nameParts = name ? name.split(/\s+/) : [];
+
     const payload = {
       email: form.email,
       password: form.password,
-      role: form.role || "",                // required by backend
+      role: "EMPLOYEE", // 🔒 fixed role
       firstName: nameParts[0] || "",
       lastName: nameParts.slice(1).join(" ") || "",
-      // other optional fields (backend may ignore if DTO doesn't include them)
       address: form.address,
       gender: form.gender,
       hireDate: form.hireDate,
@@ -44,15 +42,11 @@ const Register = () => {
         headers: { "Content-Type": "application/json" },
       });
 
-      // success
-      console.log("✅ Response:", res.data);
       toast.success("Registered: " + (res.data.email || "Success"));
 
-      // clear form
       setForm({
         email: "",
         password: "",
-        role: "",
         address: "",
         fullName: "",
         gender: "",
@@ -62,8 +56,8 @@ const Register = () => {
       });
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err);
-      // show backend message if present
-      const serverMsg = err.response?.data?.error || err.message || "Registration failed";
+      const serverMsg =
+        err.response?.data?.error || err.message || "Registration failed";
       toast.error(serverMsg);
     }
   };
@@ -97,18 +91,7 @@ const Register = () => {
         />
         <br />
 
-        {/* Role selector */}
-        <select
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-          required
-        >
-          <option value="">Select Role</option>
-          <option value="ADMIN">Admin</option>
-          <option value="EMPLOYEE">Employee</option>
-          <option value="HR_MANAGER">HR</option>
-        </select>
-        <br />
+        {/* 🔒 Removed role dropdown */}
 
         <input
           type="text"

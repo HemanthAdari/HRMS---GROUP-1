@@ -1,4 +1,3 @@
-// src/components/Employees.jsx
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import './Employee.css';
@@ -9,49 +8,35 @@ const API = 'http://localhost:8080/api/employees';
 
 const Employees = () => {
   const navigate = useNavigate();
+
   const [employees, setEmployees] = useState([]);
-  const [value, setValue] = useState(new Date());
 
   useEffect(() => {
     axios.get(API)
-      .then(res => setEmployees(res.data))
-      .catch(err => console.error('❌ Error fetching employees:', err));
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => setValue(new Date()), 1000);
-    return () => clearInterval(timer);
+      .then(res => {
+        setEmployees(res.data || []);
+      })
+      .catch(err => {
+        console.error('❌ Error fetching employees:', err);
+        toast.error('Failed to load employees');
+      });
   }, []);
 
   const handleUpdate = (emp) => {
-    // pass full employee object to update page
     navigate('/a/emp/update', { state: emp });
   };
 
-  const handleDelete = async (empOrId) => {
-    const id = typeof empOrId === 'number' || typeof empOrId === 'string'
-      ? empOrId
-      : (empOrId?.employeeId || empOrId?.empId || empOrId?.id || null);
-
-    if (!id) {
-      toast.error("Employee id is missing. Can't delete.");
-      return;
-    }
-
+  const handleDelete = async (emp) => {
+    const id = emp?.employeeId || emp?.id;
+    if (!id) { toast.error("Employee id missing"); return; }
     if (!window.confirm('Are you sure you want to delete this employee?')) return;
-
     try {
       await axios.delete(`${API}/${id}`);
-      toast.success('Employee deleted successfully');
-
-      setEmployees((prev) => prev.filter((e) => {
-        const eid = e?.employeeId || e?.empId || e?.id || null;
-        return eid !== id;
-      }));
+      toast.success('Employee deleted');
+      setEmployees(prev => prev.filter(e => (e.employeeId || e.id) !== id));
     } catch (err) {
-      console.error('❌ Error deleting employee:', err?.response || err);
-      const msg = err?.response?.data?.message || 'Error deleting employee';
-      toast.error(msg);
+      console.error('Delete error', err);
+      toast.error('Failed to delete employee');
     }
   };
 
@@ -60,21 +45,22 @@ const Employees = () => {
       <h1>List Of Employees</h1>
       <div className='main1'>
         {employees.map((emp) => {
-          const id = emp?.employeeId || emp?.empId || emp?.id || '—';
-          // if backend returned nested user, prefer user.email
-          const email = emp?.email || emp?.user?.email || '—';
+          const id = emp?.employeeId || emp?.id || '—';
+          const email = emp?.user?.email || emp?.email || '—';
           const fullName = emp?.fullName || `${emp?.firstName || ''} ${emp?.lastName || ''}`.trim() || '—';
-          const hireDate = emp?.hireDate || '—';
+          const hireDate = emp?.hireDate ? (new Date(emp.hireDate)).toLocaleDateString() : '—';
+          const addressLine1 = emp?.address || '—';
+          const addressLine2 = emp?.address2 || '—';
           const salary = emp?.salary ?? '—';
-          const address = emp?.address || '—';
-          const gender = emp?.gender || '—';
           const phone = emp?.phone || '—';
+          const gender = emp?.gender || '—';
 
           return (
             <div key={id} className='cards'>
               <h2>{id}</h2>
               <p><b>Email :</b> {email}</p>
-              <p><b>Address :</b> {address}</p>
+              <p><b>Address :</b> {addressLine1}</p>
+              <p><b>Address 2 :</b> {addressLine2}</p>
               <p><b>Salary :</b> {salary}</p>
               <p><b>Full name :</b> {fullName}</p>
               <p><b>Gender :</b> {gender}</p>

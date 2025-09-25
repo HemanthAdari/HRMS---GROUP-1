@@ -1,4 +1,3 @@
-// Attendance.jsx
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./Menu.css";
@@ -17,15 +16,17 @@ const Attendance = () => {
 
   // Get user info from localStorage
   const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("role");
+  const role = (localStorage.getItem("role") || "").toLowerCase();
 
   // Load attendance based on role
   useEffect(() => {
     let url;
-    if (role === "ADMIN" || role === "HR_MANAGER") {
-      url = API + "/all";
+    if (role === "hr" || role === "admin") {
+      url = API; // all attendance
+    } else if (role === "emp") {
+      url = `${API}?userId=${userId}`; // only this employee's attendance
     } else {
-      url = API + `/user/${userId}`;
+      return; // unknown role, skip
     }
 
     axios
@@ -38,15 +39,15 @@ const Attendance = () => {
   const handleMarkAttendance = (e) => {
     e.preventDefault();
     const payload = {
-      userId: parseInt(userId), // use logged-in userId
+      userId: parseInt(userId), // logged-in employee id
       date,
       status,
     };
     axios
-      .post(API + "/mark", payload)
+      .post(API, payload)
       .then((res) => {
         alert("Attendance marked successfully");
-        setAttendance([...attendance, res.data]); // update list immediately
+        setAttendance([...attendance, res.data]); // update immediately
       })
       .catch((err) => {
         console.error("Error marking attendance:", err.response?.data || err);
@@ -56,8 +57,8 @@ const Attendance = () => {
 
   // Filtering logic
   const filtered = attendance.filter((att) => {
-    const emailMatch = att.user.email
-      .toLowerCase()
+    const emailMatch = att.user?.email
+      ?.toLowerCase()
       .includes(search.toLowerCase());
 
     const attDate = new Date(att.date);
@@ -72,7 +73,7 @@ const Attendance = () => {
   return (
     <div className="attendance">
       <div className="aSecAttendance">
-        {role === "EMPLOYEE" && (
+        {role === "emp" && (
           <>
             <h1>Mark Attendance</h1>
             <form onSubmit={handleMarkAttendance} style={{ marginBottom: "20px" }}>
@@ -138,7 +139,7 @@ const Attendance = () => {
             {filtered.map((att) => (
               <tr key={att.attendanceId}>
                 <td>{att.attendanceId}</td>
-                <td>{att.user.email}</td>
+                <td>{att.user?.email}</td>
                 <td>{att.date}</td>
                 <td>{att.status}</td>
                 <td>{att.remarks || "-"}</td>

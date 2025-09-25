@@ -9,6 +9,7 @@ import Dashboard from './components/Dashboard'
 import Employees from './components/Employees'
 import Attendance from './components/Attendance'
 import Salary from './components/Salary'
+import HrAttendance from './components/HrAttendance';
 
 import EmpNav from './employee/EmpNav'
 import EmpDashboard from './employee/EmpDashboard'
@@ -26,37 +27,31 @@ import ApplyJobForm from './components/ApplyJobForm';
 import ApplyJobsPositionEmp from './components/ApplyJobsPositionEmp';
 import HrPendingUsers from './components/HrPendingUsers';
 
-const ROLE_KEY = "hrms_role";
-
 const App = () => {
-  // initialize role from localStorage (so refresh keeps user logged in)
-  const initialRole = typeof window !== "undefined" ? localStorage.getItem(ROLE_KEY) || "" : "";
-  const [role, setRoleState] = useState(initialRole);
+  // 🚨 Clear session every time the app mounts → force login screen
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
-  // wrapper so every change persists to localStorage
+  // role is set by Login via setRole("hr"|"emp"|"admin")
+  const [role, setRoleState] = useState("");
+
   const setRole = (r) => {
     setRoleState(r || "");
-    if (r) {
-      localStorage.setItem(ROLE_KEY, r);
-    } else {
-      localStorage.removeItem(ROLE_KEY);
-    }
   };
 
-  // Optional: expose logout handler to pass down
-  const logout = () => setRole("");
-
-  // If you want to auto-redirect on mount based on role, you could do that here
-  useEffect(() => {
-    // example: console.log("current role:", role);
-  }, [role]);
+  const logout = () => {
+    // clear on logout as well, then go to login
+    localStorage.clear();
+    setRole("");
+  };
 
   return (
     <div>
       <BrowserRouter>
         <ToastContainer />
 
-        {/* Login component should call setRole(...) on success */}
+        {/* Always show Login first if no role */}
         {!role && <Login setRole={setRole} />}
 
         {role === "hr" && (
@@ -71,7 +66,8 @@ const App = () => {
               <Route path='/a/dash/apply-jobs' element={<ApplyJobsPositionEmp/>}/>
               <Route path="/a/emp" element={<Employees />} />
               <Route path='/a/emp/update' element={<UpdateEmployee/>}/>
-              <Route path="/a/att" element={<Attendance />} />
+              {/* HR attendance view */}
+              <Route path="/a/att" element={<HrAttendance />} />
               <Route path="/a/leave/request" element={<RequestLeave />} />
               <Route path="/a/leave/approved" element={<ApproveLeave />} />
               <Route path="/a/sal" element={<Salary />} />

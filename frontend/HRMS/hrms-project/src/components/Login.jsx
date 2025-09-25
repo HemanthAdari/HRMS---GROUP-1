@@ -1,7 +1,7 @@
-// src/components/Login.jsx
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import profile from "../assets/profile.png";
 import { EmailContext } from "./EmailContext";
@@ -18,7 +18,6 @@ const Login = ({ setRole }) => {
     email: "",
     password: "",
     phone: "",
-    role: "",
   });
 
   // from context
@@ -28,6 +27,7 @@ const Login = ({ setRole }) => {
   const [selectedJob, setSelectedJob] = useState(null);
 
   const [isRegister, setIsRegister] = useState(false);
+  const navigate = useNavigate(); // <-- added
 
   useEffect(() => {
     axios
@@ -51,28 +51,35 @@ const Login = ({ setRole }) => {
         setEmail(res.data?.email || form.email);
         setUserId(res.data?.userId);
 
-        // Persist identity
+        // Persist identity (optional)
         localStorage.setItem("userId", String(res.data?.userId || ""));
         localStorage.setItem("email", res.data?.email || form.email || "");
 
-        // 🚨 Only employees need approval
+        // Employee approval check
         if (roleFromServer === "EMPLOYEE" && statusFromServer !== "ACTIVE") {
           toast.warn(
             `Your account is ${statusFromServer}. Please wait for HR approval.`
           );
-          return; // Stop here → don’t give dashboard access
+          return; // stop here
         }
 
-        // ✅ Normal role mapping
+        // Map server role to front-end keyword and navigate immediately
         if (roleFromServer === "ADMIN") {
           setRole("admin");
           setCtxRole("ADMIN");
+          navigate("/"); // admin dashboard (root)
         } else if (roleFromServer === "HR_MANAGER") {
           setRole("hr");
           setCtxRole("HR_MANAGER");
+          navigate("/"); // hr dashboard route is "/"
         } else if (roleFromServer === "EMPLOYEE") {
           setRole("emp");
           setCtxRole("EMPLOYEE");
+          navigate("/e/dash"); // employee dashboard route
+        } else {
+          // unknown role: fallback to root
+          setRole("");
+          toast.error("Unknown role from server");
         }
       })
       .catch((err) => {
@@ -87,10 +94,11 @@ const Login = ({ setRole }) => {
 
     const name = (registerForm.fullName || "").trim();
     const nameParts = name ? name.split(/\s+/) : [];
+
     const payload = {
       email: registerForm.email,
       password: registerForm.password,
-      role: registerForm.role || "",
+      role: "EMPLOYEE",
       firstName: nameParts[0] || "",
       lastName: nameParts.slice(1).join(" ") || "",
       phone: registerForm.phone,
@@ -122,9 +130,7 @@ const Login = ({ setRole }) => {
         <div className="login-container-first-div">
           <h1>HR</h1>
           <h2>Management System</h2>
-          <p>
-            Welcome to HRMS – Manage employees, jobs, and more with ease!
-          </p>
+          <p>Welcome to HRMS – Manage employees, jobs, and more with ease!</p>
         </div>
 
         <div className="login-card">
@@ -197,23 +203,6 @@ const Login = ({ setRole }) => {
                         })
                       }
                     />
-                    <br />
-                    <select
-                      className="inp"
-                      value={registerForm.role}
-                      onChange={(e) =>
-                        setRegisterForm({
-                          ...registerForm,
-                          role: e.target.value,
-                        })
-                      }
-                      required
-                    >
-                      <option value="">Select Role</option>
-                      <option value="ADMIN">Admin</option>
-                      <option value="EMPLOYEE">Employee</option>
-                      <option value="HR_MANAGER">HR</option>
-                    </select>
                     <br />
                     <input type="submit" className="sub" value="Register" />
                   </form>
