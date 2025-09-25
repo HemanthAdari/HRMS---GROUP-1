@@ -1,118 +1,135 @@
 // src/employee/EmpLeave.jsx
 import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { EmailContext } from '../components/EmailContext';
-import './EmpNav.css'
+import '../components/NavBar.css';
 
 const API = 'http://localhost:8080/api/leave';
-const EMP_API = "http://localhost:8080/api/employees"
+const EMP_API = "http://localhost:8080/api/employees";
 
 const EmpLeave = () => {
+  const { email } = useContext(EmailContext);
 
-    const { email } = useContext(EmailContext);
-    // leave form state
-    const [leave, setLeave] = useState({ email: '', date: '' });
+  // include reason in state
+  const [leave, setLeave] = useState({ email: email || '', date: '', reason: '' });
+  const [employees, setEmployees] = useState([]);
+  const [currentlea, setCurrentlea] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
-    // list of employees (from /api/employees)
-    const [employees, setEmployees] = useState([]);
-    // current used leaves for the logged-in user (number)
-    const [currentlea, setCurrentlea] = useState(0);
+  useEffect(() => {
+    axios.get(EMP_API)
+      .then(res => setEmployees(Array.isArray(res.data) ? res.data : []))
+      .catch(err => console.error("Failed to load employees:", err));
+  }, []);
 
-    // submit a leave request
-    let handleLeave = e => {
-        e.preventDefault();
+  useEffect(() => {
+    if (!email || employees.length === 0) {
+      setCurrentlea(0);
+      return;
+    }
+    const matched = employees.find(emp => {
+      const empEmail = (emp?.user?.email || emp?.email || "").toString().trim().toLowerCase();
+      return empEmail && empEmail === email.toLowerCase();
+    });
+    if (matched) {
+      setCurrentlea(Number(matched.leaves || 0));
+    } else {
+      setCurrentlea(0);
+    }
+    // prefill email field if available
+    setLeave(prev => ({ ...prev, email: email || prev.email }));
+  }, [employees, email]);
 
-        if (!email) {
-            toast.error("You are not logged in.");
-            return;
-        }
+  const handleLeave = async (e) => {
+    e.preventDefault();
 
-        if (leave.email.trim().toLowerCase() !== email.toLowerCase()) {
-            toast.error("Error: You can only apply leave for your own account!");
-            return;
-        }
-
-        axios.post(API, leave)
-            .then(res => {
-                toast.success("Leave request sent successfully");
-                // optionally clear date after submit
-                setLeave(prev => ({ ...prev, date: '' }));
-            })
-            .catch(err => {
-                console.error("Leave submit error:", err);
-                toast.error("Failed to send leave request");
-            });
+    if (!email) {
+      toast.error("You are not logged in.");
+      return;
     }
 
-    // fetch employees once on mount
-    useEffect(() => {
-        axios.get(EMP_API)
-            .then(res => {
-                const data = Array.isArray(res.data) ? res.data : [];
-                setEmployees(data);
-            })
-            .catch(err => {
-                console.error("Failed to load employees:", err);
-            });
-    }, []);
+    if (leave.email.trim().toLowerCase() !== email.toLowerCase()) {
+      toast.error("You can only apply leave for your own account.");
+      return;
+    }
 
-    // when employees or email change, find matching employee record and set leaves
-    useEffect(() => {
-        if (!email || employees.length === 0) {
-            // if no data yet, ensure default 0
-            setCurrentlea(0);
-            return;
-        }
+    if (!leave.date) {
+      toast.error("Please choose a date for leave.");
+      return;
+    }
 
-        // find by nested user.email or top-level email (defensive)
-        const matched = employees.find(emp => {
-            const empEmail = (emp?.user?.email || emp?.email || "").toString().trim().toLowerCase();
-            return empEmail && empEmail === email.toLowerCase();
-        });
+    const trimmedReason = (leave.reason || "").trim();
+    if (trimmedReason.length < 3) {
+      toast.error("Please enter a brief reason (min 3 characters).");
+      return;
+    }
 
-        if (matched) {
-            // support numeric or string leaves
-            const leavesVal = matched.leaves;
-            const parsed = typeof leavesVal === "number" ? leavesVal :
-                           (typeof leavesVal === "string" && leavesVal.trim() !== "") ? Number(leavesVal) :
-                           0;
-            setCurrentlea(Number.isNaN(parsed) ? 0 : parsed);
-            console.log("Leaves for", email, "=", matched.leaves);
-        } else {
-            // not found -> zero leaves used
-            setCurrentlea(0);
-            console.log("No employee record found for", email);
-        }
-    }, [employees, email]);
+    setSubmitting(true);
+    try {
+      const payload = {
+        email: leave.email.trim(),
+        date: leave.date,
+        reason: trimmedReason
+      };
+      console.log("POST /api/leave payload:", payload);
 
-    const remaining = 30 - Number(currentlea || 0);
+      await axios.post(API, payload);
+      toast.success("Leave request sent successfully");
+      setLeave({ email: email || '', date: '', reason: '' });
+    } catch (err) {
+      console.error("Leave submit error:", err);
+      const msg = err?.response?.data?.error || err?.response?.data || err.message || "Failed to send leave request";
+      toast.error(typeof msg === "string" ? msg : JSON.stringify(msg));
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    return (
-        <div className='emp-leave-first-div'>
-            <h1>Remaining Leaves : {Number.isFinite(remaining) ? remaining : 30}</h1>
+  const remaining = 30 - Number(currentlea || 0);
 
-            <form className='emp-leave-first-div-form' onSubmit={handleLeave}>
-                <input
-                  type="email"
-                  placeholder='enter email'
-                  value={leave.email}
-                  onChange={e => setLeave({ ...leave, email: e.target.value })}
-                />
-                <br />
-                <br />
-                <input
-                  type="date"
-                  value={leave.date}
-                  onChange={e => setLeave({ ...leave, date: e.target.value })}
-                />
-                <br />
-                <br />
-                <hr />
-                <input type="submit" value='leave' />
-            </form>
+  return (
+    <div className='emp-leave-first-div' style={{ padding: 20 }}>
+      <h1>Remaining Leaves : {Number.isFinite(remaining) ? remaining : 30}</h1>
+
+      <form className='emp-leave-first-div-form' onSubmit={handleLeave} style={{ maxWidth: 620 }}>
+        <input
+          required
+          type="email"
+          placeholder='Enter email'
+          value={leave.email}
+          onChange={e => setLeave({ ...leave, email: e.target.value })}
+          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+        />
+
+        <input
+          required
+          type="date"
+          value={leave.date}
+          onChange={e => setLeave({ ...leave, date: e.target.value })}
+          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+        />
+
+        <textarea
+          required
+          placeholder="Reason for leave (brief)"
+          value={leave.reason}
+          onChange={e => setLeave({ ...leave, reason: e.target.value })}
+          rows={4}
+          style={{ width: '100%', padding: '8px', marginBottom: '10px', resize: 'vertical' }}
+        />
+
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button type="submit" disabled={submitting} style={{ padding: '8px 16px' }}>
+            {submitting ? 'Submitting...' : 'Apply for Leave'}
+          </button>
+          <button type="button" onClick={() => setLeave({ email: email || '', date: '', reason: '' })} style={{ padding: '8px 12px' }}>
+            Reset
+          </button>
         </div>
-    )
-}
+      </form>
+    </div>
+  );
+};
 
-export default EmpLeave
+export default EmpLeave;

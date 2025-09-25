@@ -6,7 +6,7 @@ import "./NavBar.css";
 
 const PENDING_COUNT_API = "http://localhost:8080/api/admin/pending-employees";
 
-export default function NavBar({ logout }) {
+export default function NavBar({ logout, role }) {
   const [pendingCount, setPendingCount] = useState(0);
   const location = useLocation();
 
@@ -25,59 +25,87 @@ export default function NavBar({ logout }) {
   };
 
   useEffect(() => {
-    fetchPendingCount();
+    if (role === "hr") {
+      fetchPendingCount();
 
-    // Update when HrPendingUsers dispatches event
-    const handler = () => fetchPendingCount();
-    window.addEventListener("pending-updated", handler);
+      const handler = () => fetchPendingCount();
+      window.addEventListener("pending-updated", handler);
 
-    return () => {
-      window.removeEventListener("pending-updated", handler);
-    };
-  }, [location.pathname]);
+      return () => {
+        window.removeEventListener("pending-updated", handler);
+      };
+    }
+  }, [location.pathname, role]);
 
   return (
     <header style={{ borderBottom: "2px solid #ddd", background: "#fff" }}>
       {/* HRMS Title */}
-      <div style={{ padding: "16px 24px", fontSize: "32px", fontWeight: "bold", color: "#f39c12" }}>
+      <div
+        style={{
+          padding: "16px 24px",
+          fontSize: "32px",
+          fontWeight: "bold",
+          color: "#f39c12",
+        }}
+      >
         HRMS
       </div>
 
       {/* Navigation Links */}
-      <nav style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "32px",
-        padding: "12px 24px",
-        fontSize: "18px",
-        fontWeight: 500,
-      }}>
-        <Link to="/" className="nav-link">Dashboard</Link>
-        <Link to="/a/emp" className="nav-link">Employees</Link>
-        <Link to="/a/att" className="nav-link">Attendance</Link>
-        <Link to="/a/leave/request" className="nav-link">Leave</Link>
-        <Link to="/a/sal" className="nav-link">Salary</Link>
+      <nav
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "32px",
+          padding: "12px 24px",
+          fontSize: "18px",
+          fontWeight: 500,
+        }}
+      >
+        {role === "admin" ? (
+          <>
+            <Link to="/" className="nav-link">Dashboard</Link>
+            <Link to="/a/hr" className="nav-link">HR Info</Link>
+            <Link to="/a/emp" className="nav-link">Employees</Link>
+          </>
+        ) : (
+          <>
+            <Link to="/" className="nav-link">Dashboard</Link>
+            <Link to="/a/emp" className="nav-link">Employees</Link>
+            <Link to="/a/att" className="nav-link">Attendance</Link>
+            <Link to="/a/leave/request" className="nav-link">Leave</Link>
+            <Link to="/a/sal" className="nav-link">Salary</Link>
 
-        <Link to="/a/pending-users" className="nav-link" style={{ display: "inline-flex", alignItems: "center" }}>
-          Pending Users
-          <span style={{
-            marginLeft: 8,
-            background: pendingCount > 0 ? "#e74c3c" : "#999",
-            color: "#fff",
-            borderRadius: "50%",
-            padding: "4px 10px",
-            fontSize: "14px",
-            fontWeight: "bold",
-            minWidth: "28px",
-            textAlign: "center"
-          }}>
-            {pendingCount}
-          </span>
-        </Link>
+            <Link
+              to="/a/pending-users"
+              className="nav-link"
+              style={{ display: "inline-flex", alignItems: "center" }}
+            >
+              Pending Users
+              <span
+                style={{
+                  marginLeft: 8,
+                  background: pendingCount > 0 ? "#e74c3c" : "#999",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  padding: "4px 10px",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  minWidth: "28px",
+                  textAlign: "center",
+                }}
+              >
+                {pendingCount}
+              </span>
+            </Link>
+          </>
+        )}
 
         <div style={{ marginLeft: "auto" }}>
           <button
-            onClick={() => { logout && logout(); }}
+            onClick={() => {
+              logout && logout();
+            }}
             style={{
               background: "#ff6b6b",
               color: "#fff",
@@ -85,7 +113,7 @@ export default function NavBar({ logout }) {
               padding: "10px 16px",
               borderRadius: "6px",
               fontSize: "16px",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
           >
             Logout

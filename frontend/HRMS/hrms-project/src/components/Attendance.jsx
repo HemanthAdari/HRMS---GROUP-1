@@ -11,7 +11,7 @@ const Attendance = () => {
   const [endDate, setEndDate] = useState("");
 
   // For marking attendance
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(""); // YYYY-MM-DD string from input
   const [status, setStatus] = useState("FULL_DAY");
 
   // Get user info from localStorage
@@ -35,12 +35,70 @@ const Attendance = () => {
       .catch((err) => console.error("Error fetching attendance:", err));
   }, [role, userId]);
 
+  // Helper: build a local Date from YYYY-MM-DD string safely (no timezone shift)
+  const buildLocalDateFromInput = (value) => {
+    if (!value) return null;
+    // expect "YYYY-MM-DD"
+    const parts = value.split("-");
+    if (parts.length !== 3) return null;
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10);
+    const d = parseInt(parts[2], 10);
+    return new Date(y, m - 1, d); // local date at midnight
+  };
+
+  const isWeekend = (value) => {
+    if (!value) return false;
+    const d = buildLocalDateFromInput(value);
+    if (!d) return false;
+    const day = d.getDay();
+    return day === 0 || day === 6;
+  };
+
+  const isPastDate = (value) => {
+    if (!value) return false;
+    const today = new Date();
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const selected = buildLocalDateFromInput(value);
+    if (!selected) return false;
+    return selected < t;
+  };
+
+  const isFutureDate = (value) => {
+    if (!value) return false;
+    const today = new Date();
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const selected = buildLocalDateFromInput(value);
+    if (!selected) return false;
+    return selected > t;
+  };
+
   // Mark attendance (for employees only)
   const handleMarkAttendance = (e) => {
     e.preventDefault();
+
+    if (!date) {
+      alert("Please select a date.");
+      return;
+    }
+
+    // Validation: past / future / weekend
+    if (isPastDate(date)) {
+      alert("You cannot mark past days' attendance.");
+      return;
+    }
+    if (isFutureDate(date)) {
+      alert("You cannot mark future days' attendance.");
+      return;
+    }
+    if (isWeekend(date)) {
+      alert("This is a holiday. You cannot mark attendance on weekends.");
+      return;
+    }
+
     const payload = {
       userId: parseInt(userId), // logged-in employee id
-      date,
+      date, // already YYYY-MM-DD string
       status,
     };
     axios

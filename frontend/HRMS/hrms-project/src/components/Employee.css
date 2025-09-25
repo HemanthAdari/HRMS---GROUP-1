@@ -1,45 +1,124 @@
-.main1{
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+/* filename: src/components/Employee.css */
+
+/* predictable sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
-.cards{
-    height: 260px;
-    width: 200px;
-    box-shadow: 0px 1px 8px orange;
-    margin: 10px;
-    padding: 10px;
-    text-align: center;
-    border: 1px solid black;
+
+/* page wrapper */
+.emp {
+  padding: 16px 20px 40px;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
 }
-.cards p{
-    margin-top: 2px;
+
+/* heading */
+.emp h1 {
+  text-align: center;
+  margin: 8px 0 20px;
+  font-size: 28px;
+  font-weight: 700;
 }
-.emp h1{
-    text-align: center;
-    margin-top: 5px;
+
+/* grid container: 1 / 2 / 3 / 4 columns depending on width */
+.main1 {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(1, 1fr);
+  justify-items: center;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 12px;
 }
-.cards-btn1{
-    width: 70px;
-    height: 30px;
-    background-color: rgb(47, 255, 47);
-    border: 1px solid wheat;
-    border-radius: 20px;
-    margin-left: 10px;
-    margin-top: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    color: rgb(65, 65, 65);
+
+@media (min-width: 600px) { .main1 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 900px) { .main1 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1200px) { .main1 { grid-template-columns: repeat(4, 1fr); } }
+
+/* card */
+.cards {
+  width: 100%;
+  max-width: 220px;        /* controls card width so 4 fit nicely */
+  min-height: 260px;       /* helps equalize card heights */
+  background: #fff;
+  border: 2px solid #cfae6b; /* similar visual as your screenshot */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* pushes buttons to bottom */
+  overflow: hidden;               /* prevent internal overflow */
 }
-.cards-btn2{
-    width: 70px;
-    height: 30px;
-    background-color: rgb(255, 47, 47);
-    border: 1px solid wheat;
-    border-radius: 20px;
-    margin-left: 10px;
-    margin-top: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    color: rgb(255, 255, 255);
+
+/* header / id */
+.cards h2 {
+  text-align: center;
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* content lines */
+.cards p {
+  margin: 4px 0;
+  line-height: 1.12;
+  font-size: 13px;
+  color: #222;
+  white-space: normal;
+  word-break: break-word; /* stops very long words / emails from overflowing */
+}
+
+/* label alignment */
+.cards p b {
+  display: inline-block;
+  width: 92px;
+  font-weight: 700;
+}
+
+/* buttons area: keeps them inside and centered */
+.cards .buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* button base styles */
+.cards button,
+.cards .cards-btn1,
+.cards .cards-btn2 {
+  border: none;
+  padding: 7px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 80px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform .06s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* colors from your original file */
+.cards .cards-btn1 { background-color: rgb(47, 255, 47); color: #111; border: 1px solid rgba(255,255,255,0.2); }
+.cards .cards-btn2 { background-color: rgb(255, 47, 47); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+
+.cards button:active { transform: translateY(1px); }
+
+/* smaller screens: tighten button sizes */
+@media (max-width: 420px) {
+  .cards { padding: 10px; min-height: 220px; }
+  .cards button { font-size: 13px; padding: 6px 8px; min-width: 72px; }
+}
+
+/* ensure table-like fields don't expand the card */
+.cards p b + * {
+  word-break: break-word;
 }

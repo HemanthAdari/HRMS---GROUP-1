@@ -8,7 +8,6 @@ const API = 'http://localhost:8080/api/employees';
 
 const Employees = () => {
   const navigate = useNavigate();
-
   const [employees, setEmployees] = useState([]);
 
   useEffect(() => {
@@ -28,7 +27,10 @@ const Employees = () => {
 
   const handleDelete = async (emp) => {
     const id = emp?.employeeId || emp?.id;
-    if (!id) { toast.error("Employee id missing"); return; }
+    if (!id) { 
+      toast.error("Employee id missing"); 
+      return; 
+    }
     if (!window.confirm('Are you sure you want to delete this employee?')) return;
     try {
       await axios.delete(`${API}/${id}`);

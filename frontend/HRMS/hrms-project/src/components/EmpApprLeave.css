@@ -1,0 +1,81 @@
+/* Scoped styles for EmpApprLeave component */
+.emp-apr-leave-first-div {
+  padding: 28px;
+  font-family: "Arial", "Helvetica Neue", sans-serif;
+  color: #222;
+  background: #fff;
+  min-height: 60vh;
+}
+
+.emp-apr-leave-first-div h1 {
+  font-size: 26px;
+  margin-bottom: 6px;
+  color: #0b63d0;
+}
+
+.emp-apr-leave-first-div h2 {
+  font-size: 16px;
+  margin-top: 0;
+  color: #0b63d0;
+  font-weight: 600;
+}
+
+/* Table wrapper/card so table fits nicely */
+.emp-apr-leave-first-div .emp-apr-table-wrap {
+  width: 95%;
+  margin: 18px auto;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 6px 18px rgba(10, 20, 40, 0.04);
+  border: 1px solid #ececec;
+  overflow-x: auto;
+}
+
+/* Table reset + nice defaults */
+.emp-apr-leave-first-div .emp-apr-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #333;
+  table-layout: auto;
+}
+
+/* Header styling */
+.emp-apr-leave-first-div .emp-apr-table-wrap thead th {
+  background: linear-gradient(180deg,#f3f8ff,#eaf4ff);
+  color: #0b3d91;
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 2px solid #e6eefc;
+  font-weight: 700;
+}
+
+/* Row styling */
+.emp-apr-leave-first-div .emp-apr-table-wrap tbody td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Alternate row background for readability */
+.emp-apr-leave-first-div .emp-apr-table-wrap tbody tr:nth-child(odd) {
+  background: #fff;
+}
+.emp-apr-leave-first-div .emp-apr-table-wrap tbody tr:nth-child(even) {
+  background: #fbfbfb;
+}
+
+/* Empty state cell styling */
+.emp-apr-leave-first-div .emp-apr-table-wrap .no-data {
+  text-align: center;
+  padding: 28px;
+  color: #666;
+}
+
+/* small responsive tweaks */
+@media (max-width: 720px) {
+  .emp-apr-leave-first-div h1 { font-size: 20px; }
+  .emp-apr-leave-first-div h2 { font-size: 14px; }
+  .emp-apr-leave-first-div .emp-apr-table-wrap thead th,
+  .emp-apr-leave-first-div .emp-apr-table-wrap tbody td { padding: 8px; }
+}

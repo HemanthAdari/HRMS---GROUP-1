@@ -27,13 +27,15 @@ import ApplyJobForm from './components/ApplyJobForm';
 import ApplyJobsPositionEmp from './components/ApplyJobsPositionEmp';
 import HrPendingUsers from './components/HrPendingUsers';
 
+import AdminDashboard from './components/AdminDashboard'; // admin landing
+import AdminEmployees from './components/AdminEmployees'; // admin-only employee list
+import AdminHrInfo from './components/AdminHrInfo'; // admin HR info
+
 const App = () => {
-  // 🚨 Clear session every time the app mounts → force login screen
   useEffect(() => {
     localStorage.clear();
   }, []);
 
-  // role is set by Login via setRole("hr"|"emp"|"admin")
   const [role, setRoleState] = useState("");
 
   const setRole = (r) => {
@@ -41,7 +43,6 @@ const App = () => {
   };
 
   const logout = () => {
-    // clear on logout as well, then go to login
     localStorage.clear();
     setRole("");
   };
@@ -51,12 +52,33 @@ const App = () => {
       <BrowserRouter>
         <ToastContainer />
 
-        {/* Always show Login first if no role */}
         {!role && <Login setRole={setRole} />}
+
+        {role === "admin" && (
+          <>
+            <NavBar logout={logout} role={role} />
+            <Routes>
+              <Route path="/" element={<AdminDashboard />} />
+              <Route path="/a/hr" element={<AdminHrInfo />} />   {/* admin HR info */}
+              <Route path="/a/emp" element={<AdminEmployees />} />
+              <Route path="/a/att" element={<HrAttendance />} /> {/* still available but not in Nav */}
+              <Route path="/a/leave/request" element={<RequestLeave />} />
+              <Route path="/a/leave/approved" element={<ApproveLeave />} />
+              <Route path="/a/sal" element={<Salary />} />
+              <Route path="/a/dash/regi" element={<Register/>}/>
+              <Route path="/a/dash/add-job" element={<AddJobPosition/>}/>
+              <Route path="/a/dash/get-all-job" element={<GetAllJob/>}/>
+              <Route path="/a/dash/get-single-job" element={<GetSingleJob/>}/>
+              <Route path="/a/dash/apply-jobs" element={<ApplyJobsPositionEmp/>}/>
+              <Route path="/a/emp/update" element={<UpdateEmployee/>}/>
+              <Route path="/a/pending-users" element={<HrPendingUsers />} />
+            </Routes>
+          </>
+        )}
 
         {role === "hr" && (
           <>
-            <NavBar logout={logout} />
+            <NavBar logout={logout} role={role} />
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path='/a/dash/regi' element={<Register/>}/>
@@ -66,7 +88,6 @@ const App = () => {
               <Route path='/a/dash/apply-jobs' element={<ApplyJobsPositionEmp/>}/>
               <Route path="/a/emp" element={<Employees />} />
               <Route path='/a/emp/update' element={<UpdateEmployee/>}/>
-              {/* HR attendance view */}
               <Route path="/a/att" element={<HrAttendance />} />
               <Route path="/a/leave/request" element={<RequestLeave />} />
               <Route path="/a/leave/approved" element={<ApproveLeave />} />

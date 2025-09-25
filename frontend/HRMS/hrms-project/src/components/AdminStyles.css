@@ -1,0 +1,141 @@
+/* AdminStyles.css - used by all admin pages */
+.admin-hero {
+  background: linear-gradient(90deg, #fff7ec 0%, #f3f9ff 100%);
+  padding: 28px 32px;
+  border-bottom: 1px solid #e6e6e6;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.admin-hero .hero-text {
+  flex: 1;
+}
+
+.admin-title {
+  color: #d35400; /* warm orange */
+  font-family: "Georgia", serif;
+  font-size: 34px;
+  margin: 0 0 6px 0;
+}
+
+.admin-sub {
+  color: #555;
+  margin: 0;
+}
+
+.admin-hero .hero-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 6px 18px rgba(20,20,40,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* container */
+.admin-container {
+  padding: 20px 28px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+/* grid for cards */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+/* card */
+.admin-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 16px rgba(30, 40, 80, 0.04);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-card .left {
+  flex: 1;
+}
+
+.admin-card .name {
+  font-weight: 700;
+  color: #222;
+  font-size: 16px;
+}
+
+.admin-card .meta {
+  color: #666;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* badge */
+.badge {
+  background: linear-gradient(180deg,#7ed6df,#22a6b3);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 48px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(34,166,179,0.18);
+}
+
+/* hr info header */
+.hr-header {
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:12px;
+  margin-top:10px;
+}
+
+.small-muted {
+  color:#777;
+  font-size:13px;
+}
+
+/* admin dashboard stats */
+.stats {
+  display:flex;
+  gap:12px;
+  margin-top:16px;
+  flex-wrap:wrap;
+}
+.stat-box {
+  background: linear-gradient(180deg,#fff,#f8fbff);
+  padding:12px 16px;
+  border-radius:10px;
+  border:1px solid #edf2ff;
+  box-shadow: 0 6px 12px rgba(15,20,60,0.03);
+  min-width:160px;
+}
+.stat-value {
+  font-weight:800;
+  font-size:22px;
+  color:#0b63d0;
+}
+.stat-label {
+  color:#666;
+  font-size:13px;
+}
+
+/* responsive tweaks */
+@media (max-width: 680px) {
+  .admin-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .admin-hero .hero-image {
+    width: 90px;
+    height: 90px;
+  }
+}
