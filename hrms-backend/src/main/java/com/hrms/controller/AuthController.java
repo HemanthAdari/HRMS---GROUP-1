@@ -9,17 +9,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
+import java.net.URI;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Authentication endpoints (login / register).
+ *
+ * Important changes made:
+ * - Registration now forces Role.EMPLOYEE and Status.PENDING (ignores any role sent from client).
+ * - Registration blocks self-registration for reserved admin/hr emails.
+ * - Safe JSON responses avoid returning password hashes.
+ */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AuthController {
 
     private final UserService userService;
+
+    // TODO: replace these with your actual admin/hr addresses or fetch from config
+    private static final String RESERVED_ADMIN_EMAIL = "admin@yourdomain.com";
+    private static final String RESERVED_HR_EMAIL    = "hr@yourdomain.com";
 
     public AuthController(UserService userService) {
         this.userService = userService;
@@ -31,51 +44,47 @@ public class AuthController {
     @PostMapping(path = "/api/register", consumes = "application/json")
     public ResponseEntity<?> registerJson(@RequestBody RegistrationRequest req) {
         try {
-            // map DTO -> entity
-            User user = new User();
-            user.setEmail(req.getEmail());
-            user.setPasswordHash(req.getPassword()); // raw password; will be hashed in service
+            String email = (req.getEmail() == null ? "" : req.getEmail().trim()).toLowerCase();
+            String rawPassword = req.getPassword() == null ? "" : req.getPassword();
 
-            // Normalize and map role safely (accept case-insensitive input)
-            String roleInput = req.getRole() == null ? "" : req.getRole().trim();
-            try {
-                user.setRole(User.Role.valueOf(roleInput));
-            } catch (IllegalArgumentException e1) {
-                try {
-                    user.setRole(User.Role.valueOf(roleInput.toUpperCase()));
-                } catch (IllegalArgumentException e2) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "Invalid role: " + req.getRole()));
-                }
+            if (email.isEmpty() || rawPassword.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
             }
+
+            // block admin/hr reserved emails from self-registering
+            if (RESERVED_ADMIN_EMAIL.equalsIgnoreCase(email) || RESERVED_HR_EMAIL.equalsIgnoreCase(email)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Registration with this email is not allowed"));
+            }
+
+            // map DTO -> entity (server controls role/status)
+            User user = new User();
+            user.setEmail(email);
+            user.setPasswordHash(rawPassword); // raw; UserService.register should handle hashing
+            user.setFirstName(req.getFirstName());
+            user.setLastName(req.getLastName());
+            // Force employee role and pending status regardless of client input
+            user.setRole(User.Role.EMPLOYEE);
+            user.setStatus(User.Status.PENDING);
+            user.setCreatedAt(Instant.now());
 
             User created = userService.register(user);
 
-            // Safe response building: avoid Map.of with possible nulls
+            // don't return password hash
+            created.setPasswordHash(null);
+
             Map<String, Object> resp = new HashMap<>();
             resp.put("userId", created.getUserId());
-            if (created.getEmail() != null) resp.put("email", created.getEmail());
-            if (created.getRole() != null) resp.put("role", created.getRole().name());
+            resp.put("email", created.getEmail());
+            resp.put("role", created.getRole() != null ? created.getRole().name() : null);
+            resp.put("status", created.getStatus() != null ? created.getStatus().name() : null);
+            resp.put("createdAt", created.getCreatedAt() != null ? created.getCreatedAt().toString() : Instant.now().toString());
 
-            // createdAt might be null depending on entity mapping, add safely
-            try {
-                Object createdAt = created.getCreatedAt();
-                if (createdAt != null) {
-                    resp.put("createdAt", createdAt);
-                } else {
-                    // optional: put server time as fallback (or skip)
-                    resp.put("createdAt", Instant.now().toString());
-                }
-            } catch (Exception ignore) {
-                // ignore any createdAt access issues
-            }
-
-            return ResponseEntity.ok(resp);
+            return ResponseEntity.created(URI.create("/auth/api/users/" + created.getUserId())).body(resp);
 
         } catch (IllegalArgumentException ex) {
-            // thrown by register when duplicate email or invalid role
+            // userService.register may throw this for duplicate email etc.
             return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
         } catch (Exception ex) {
-            // log to console for debugging during development
             ex.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "Server error"));
         }
@@ -84,29 +93,34 @@ public class AuthController {
     // -----------------------
     // HTML FORM registration
     // -----------------------
-    // Expecting form fields: email, password, role, firstName, lastName (role required)
+    // Expecting form fields: email, password, firstName, lastName (role removed from form handling)
     @PostMapping(path = "/register", consumes = "application/x-www-form-urlencoded")
     public String registerForm(RegistrationRequest req, RedirectAttributes ra) {
         try {
-            User user = new User();
-            user.setEmail(req.getEmail());
-            user.setPasswordHash(req.getPassword()); // raw -> will be hashed in service
+            String email = (req.getEmail() == null ? "" : req.getEmail().trim()).toLowerCase();
+            String rawPassword = req.getPassword() == null ? "" : req.getPassword();
 
-            // role mapping with same safe strategy
-            String roleInput = req.getRole() == null ? "" : req.getRole().trim();
-            try {
-                user.setRole(User.Role.valueOf(roleInput));
-            } catch (IllegalArgumentException e1) {
-                try {
-                    user.setRole(User.Role.valueOf(roleInput.toUpperCase()));
-                } catch (IllegalArgumentException e2) {
-                    ra.addFlashAttribute("error", "Invalid role: " + req.getRole());
-                    return "redirect:/register.html";
-                }
+            if (email.isEmpty() || rawPassword.isEmpty()) {
+                ra.addFlashAttribute("error", "Email and password are required");
+                return "redirect:/register.html";
             }
 
+            if (RESERVED_ADMIN_EMAIL.equalsIgnoreCase(email) || RESERVED_HR_EMAIL.equalsIgnoreCase(email)) {
+                ra.addFlashAttribute("error", "Registration with this email is not allowed");
+                return "redirect:/register.html";
+            }
+
+            User user = new User();
+            user.setEmail(email);
+            user.setPasswordHash(rawPassword);
+            user.setFirstName(req.getFirstName());
+            user.setLastName(req.getLastName());
+            user.setRole(User.Role.EMPLOYEE);      // force
+            user.setStatus(User.Status.PENDING);   // must be approved by HR
+            user.setCreatedAt(Instant.now());
+
             userService.register(user);
-            ra.addFlashAttribute("msg", "Registration successful. Please login.");
+            ra.addFlashAttribute("msg", "Registration successful. Please wait for HR approval.");
             return "redirect:/login.html";
         } catch (IllegalArgumentException ex) {
             ra.addFlashAttribute("error", ex.getMessage());
@@ -131,7 +145,7 @@ public class AuthController {
             payload.put("userId", u.getUserId());
             if (u.getEmail() != null) payload.put("email", u.getEmail());
             if (u.getRole() != null) payload.put("role", u.getRole().name());
-            if (u.getStatus() != null) payload.put("status", u.getStatus().name()); // <-- added status
+            if (u.getStatus() != null) payload.put("status", u.getStatus().name());
             return ResponseEntity.ok(payload);
         } else {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));

@@ -1,10 +1,9 @@
 package com.hrms.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "employees")
@@ -19,9 +18,10 @@ public class Employee {
     @Column(name = "employee_id")
     private Integer employeeId;
 
-    // link to user (one-to-one)
-    @OneToOne
+    // link to users table
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @Column(name = "first_name", length = 50)
@@ -29,6 +29,12 @@ public class Employee {
 
     @Column(name = "last_name", length = 50)
     private String lastName;
+
+    @Column(length = 255)
+    private String address;        // address line 1
+
+    @Column(name = "address2", length = 255)
+    private String address2;       // address line 2
 
     @Column(length = 50)
     private String department;
@@ -39,24 +45,27 @@ public class Employee {
     @Column(length = 20)
     private String phone;
 
-    @Column(length = 255)
-    private String address;        // combined address (address1 + address2 if used)
-
-    @Column(name = "address2", length = 255)
-    private String address2;       // optional second line
-
     @Column(name = "salary")
     private Double salary;
 
     @Column(length = 10)
-    private String gender;         // e.g. "male","female","other"
+    private String gender;         // e.g. "male", "female", "other"
 
     @Column(name = "hire_date")
-    private LocalDate hireDate;
+    private java.sql.Date hireDate;
 
-    // Derived property not stored in DB
-    @Transient
+    // NEW: leaves column to store number of used/approved leaves (nullable)
+    @Column(name = "leaves")
+    private Integer leaves;
+
+    // Provide a JSON property fullName combining first+last
+    @JsonProperty("fullName")
     public String getFullName() {
-        return (firstName != null ? firstName : "") + (lastName != null && !lastName.isBlank() ? " " + lastName : "");
+        String f = firstName == null ? "" : firstName.trim();
+        String l = lastName == null ? "" : lastName.trim();
+        if (f.isEmpty() && l.isEmpty()) return "";
+        if (l.isEmpty()) return f;
+        if (f.isEmpty()) return l;
+        return f + " " + l;
     }
 }

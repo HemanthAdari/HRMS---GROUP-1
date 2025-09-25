@@ -28,9 +28,9 @@ public class HrController {
 
     @GetMapping("/pending-employees")
     public ResponseEntity<List<User>> listPendingEmployees() {
-        // pass enum (User.Role.EMPLOYEE) and status enum
         List<User> pending = userRepo.findByRoleAndStatus(User.Role.EMPLOYEE, User.Status.PENDING);
-        pending.forEach(u -> { if (u != null) u.setPasswordHash(null); });
+        // Do NOT call user.setPasswordHash(null) here — will mutate managed entity.
+        // Password will not be serialized because of @JsonIgnore on the getter.
         return ResponseEntity.ok(pending);
     }
 
@@ -71,7 +71,7 @@ public class HrController {
             }
             user.setStatus(User.Status.REJECTED);
             userRepo.save(user);
-            user.setPasswordHash(null);
+            // Do NOT mutate user.setPasswordHash(null) here (avoids managed mutation & DB update)
             return ResponseEntity.ok(user);
         }).orElse(ResponseEntity.notFound().build());
     }

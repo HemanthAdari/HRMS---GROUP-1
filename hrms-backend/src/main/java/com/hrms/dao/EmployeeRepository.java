@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
-    // email is on the associated User (employee.user.email) -> use property path user.email
+    // find employee by the associated user's email
     Optional<Employee> findByUserEmail(String email);
 }

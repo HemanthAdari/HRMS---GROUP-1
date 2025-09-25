@@ -43,6 +43,8 @@
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        
+       
 
         <!-- Lombok (compile-time) -->
         <dependency>
