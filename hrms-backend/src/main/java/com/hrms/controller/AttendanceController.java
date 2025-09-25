@@ -7,6 +7,7 @@ import com.hrms.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -23,11 +24,6 @@ public class AttendanceController {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Primary GET:
-     * - GET /api/attendance            -> all attendance
-     * - GET /api/attendance?userId=42  -> attendance for userId 42
-     */
     @GetMapping("")
     public ResponseEntity<?> getAttendance(@RequestParam(required = false) Integer userId) {
         try {
@@ -37,7 +33,6 @@ public class AttendanceController {
             } else {
                 list = attendanceService.getAllAttendance();
             }
-            // hide passwordHash before sending
             list.forEach(a -> { if (a.getUser() != null) a.getUser().setPasswordHash(null); });
             return ResponseEntity.ok(list);
         } catch (Exception ex) {
@@ -46,10 +41,6 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * Explicit mapping for frontend requests that use /all
-     * GET /api/attendance/all
-     */
     @GetMapping("/all")
     public ResponseEntity<?> getAllAttendance() {
         try {
@@ -62,10 +53,6 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * Explicit mapping for getting attendance by user id path
-     * GET /api/attendance/user/{userId}
-     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getAttendanceForUserPath(@PathVariable Integer userId) {
         try {
@@ -80,10 +67,6 @@ public class AttendanceController {
         }
     }
 
-    /**
-     * Mark attendance
-     * Accepts POST to /api/attendance and /api/attendance/mark
-     */
     @PostMapping(path = {"", "/mark"})
     public ResponseEntity<?> markAttendance(@RequestBody Map<String, Object> body) {
         try {
@@ -92,6 +75,19 @@ public class AttendanceController {
                 return ResponseEntity.badRequest().body(Map.of("error", "date is required"));
             }
             LocalDate date = LocalDate.parse(dateObj.toString());
+
+            // server-side validation: past/future/weekend
+            LocalDate today = LocalDate.now();
+            if (date.isBefore(today)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "You cannot mark past days' attendance"));
+            }
+            if (date.isAfter(today)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "You cannot mark future days' attendance"));
+            }
+            DayOfWeek dow = date.getDayOfWeek();
+            if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
+                return ResponseEntity.badRequest().body(Map.of("error", "This is a holiday. You cannot mark attendance on weekends"));
+            }
 
             // determine userId
             Integer userId = null;

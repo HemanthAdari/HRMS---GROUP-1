@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -34,11 +35,25 @@ public class AttendanceService {
     /**
      * Mark attendance for a user on a date.
      * Throws IllegalArgumentException if user not found or already marked for the date.
+     * Also validates past/future/weekend to keep backend safe.
      */
     public Attendance markAttendance(Integer userId, LocalDate date, Attendance.Status status) {
         if (userId == null) throw new IllegalArgumentException("userId is required");
         if (date == null) throw new IllegalArgumentException("date is required");
         if (status == null) throw new IllegalArgumentException("status is required");
+
+        // backend safety: do not allow past/future/weekend
+        LocalDate today = LocalDate.now();
+        if (date.isBefore(today)) {
+            throw new IllegalArgumentException("You cannot mark past days' attendance");
+        }
+        if (date.isAfter(today)) {
+            throw new IllegalArgumentException("You cannot mark future days' attendance");
+        }
+        DayOfWeek dow = date.getDayOfWeek();
+        if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
+            throw new IllegalArgumentException("This is a holiday. You cannot mark attendance on weekends");
+        }
 
         Optional<User> userOpt = userRepository.findById(userId);
         if (userOpt.isEmpty()) {
@@ -60,7 +75,6 @@ public class AttendanceService {
                 .user(user)
                 .date(date)
                 .status(status)
-                // set check-in for FULL_DAY by default (optional)
                 .checkIn(status == Attendance.Status.FULL_DAY ? LocalTime.now() : null)
                 .checkOut(null)
                 .remarks(null)
@@ -79,9 +93,6 @@ public class AttendanceService {
         }
     }
 
-    /**
-     * Get attendance list for a single user.
-     */
     public List<Attendance> getAttendanceForUser(Integer userId) {
         if (userId == null) throw new IllegalArgumentException("userId is required");
         User user = userRepository.findById(userId)
@@ -89,9 +100,6 @@ public class AttendanceService {
         return attendanceRepository.findByUser(user);
     }
 
-    /**
-     * Get all attendance records (for admin / hr use).
-     */
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
     }

@@ -32,8 +32,13 @@ public class Leave {
     @Column(name = "status", length = 20)
     private Status status = Status.PENDING;
 
-    @Column(name = "reason", length = 255)
+    // Employee-submitted reason
+    @Column(name = "reason", length = 500)
     private String reason;
+
+    // HR rejection reason
+    @Column(name = "reject_reason", length = 1000)
+    private String rejectReason;
 
     public enum Status {
         PENDING,
